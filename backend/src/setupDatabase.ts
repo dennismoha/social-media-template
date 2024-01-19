@@ -1,14 +1,13 @@
 import mongoose from "mongoose";
-const pass = "%40$$Mon254";
+
+
+import { MONGO_DATABASE_URL  } from "./constants";
+
 
 export default () => {
   const connect = () => {
     mongoose
-      .connect(
-        `mongodb+srv://georgekinoti254:${encodeURIComponent(
-          "@$$Mon254"
-        )}@cluster0.v5pwujv.mongodb.net/?retryWrites=true&w=majority`
-      )
+      .connect(MONGO_DATABASE_URL )
 
       .then(() => {
         console.log("successfully connected to db");
