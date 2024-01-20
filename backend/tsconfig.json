@@ -22,7 +22,12 @@
     "paths": {
       "*": ["@types/*"],
       // Add your absolute paths mappings here
+      "@global":["./src/features/shared/globals/*"],
       "@src/*": ["./*"]
     },
-  },  
+    "plugins": [
+      {"transform":"typescript-transform-paths"},
+      {"transform":"typescript-transform-paths", "afterDeclarations":true}
+    ]
+  },
 }
