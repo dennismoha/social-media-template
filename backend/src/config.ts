@@ -1,6 +1,6 @@
-import dotenv from "dotenv";
-import { MONGO_DATABASE_URL } from "./constants";
-import bunyan from 'bunyan'
+import dotenv from 'dotenv';
+import { MONGO_DATABASE_URL } from './constants';
+import bunyan from 'bunyan';
 
 dotenv.config({});
 
@@ -18,26 +18,26 @@ class Config {
   private readonly DEFAULT_DATABASE_URL = MONGO_DATABASE_URL;
 
   constructor() {
-    this.DATABASE_USERNAME = process.env.DATABASE_USERNAME || "";
+    this.DATABASE_USERNAME = process.env.DATABASE_USERNAME || '';
     this.DATABASE_PASSWORD = process.env.DATABASE_PASSWORD || undefined;
     this.DATABASE_URL = MONGO_DATABASE_URL;
-    this.JWT_TOKEN = process.env.JWT_TOKEN || "BLABLABLA";
-    this.NODE_ENV = process.env.NODE_ENV || "";
-    this.SECRET_COOKIE_KEY_ONE = process.env.SECRETE_COOKIE_KEY_ONE || "";
-    this.SECRET_COOKIE_KEY_TWO = process.env.SECRETE_COOKIE_KEY_TWO || "";
-    this.CLIENT_URL = process.env.CLIENT_URL || "";
-    this.REDIS_HOST = process.env.REDIS_HOST ||  ""
+    this.JWT_TOKEN = process.env.JWT_TOKEN || 'BLABLABLA';
+    this.NODE_ENV = process.env.NODE_ENV || '';
+    this.SECRET_COOKIE_KEY_ONE = process.env.SECRETE_COOKIE_KEY_ONE || '';
+    this.SECRET_COOKIE_KEY_TWO = process.env.SECRETE_COOKIE_KEY_TWO || '';
+    this.CLIENT_URL = process.env.CLIENT_URL || '';
+    this.REDIS_HOST = process.env.REDIS_HOST || '';
   }
 
-  public createLogger(name:string): bunyan{
-    return bunyan.createLogger({name, level:'debug'})
+  public createLogger(name: string): bunyan {
+    return bunyan.createLogger({ name, level: 'debug' });
   }
 
-  public validateConfig(): void{
-    for(const [key, value]  of Object.entries(this)){
-        if(value === undefined){
-            throw new Error(`${key} configuration is undefined`)
-        }
+  public validateConfig(): void {
+    for (const [key, value] of Object.entries(this)) {
+      if (value === undefined) {
+        throw new Error(`${key} configuration is undefined`);
+      }
     }
   }
 }
