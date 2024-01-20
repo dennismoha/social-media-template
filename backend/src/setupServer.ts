@@ -117,5 +117,7 @@ export class ChattyServer {
   }
 
   // all socket io connections will be defined here
-  private socketIOConnections(io: Server): void {}
+  private socketIOConnections(io: Server): void {
+    log.info('io is',io);
+  }
 }
