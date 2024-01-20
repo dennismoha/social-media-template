@@ -1,5 +1,6 @@
 import dotenv from "dotenv";
 import { MONGO_DATABASE_URL } from "./constants";
+import bunyan from 'bunyan'
 
 dotenv.config({});
 
@@ -26,6 +27,10 @@ class Config {
     this.SECRET_COOKIE_KEY_TWO = process.env.SECRETE_COOKIE_KEY_TWO || "";
     this.CLIENT_URL = process.env.CLIENT_URL || "";
     this.REDIS_HOST = process.env.REDIS_HOST ||  ""
+  }
+
+  public createLogger(name:string): bunyan{
+    return bunyan.createLogger({name, level:'debug'})
   }
 
   public validateConfig(): void{

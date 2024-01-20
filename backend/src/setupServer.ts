@@ -22,7 +22,9 @@ import compression from "compression";
 import { config } from "./config";
 import applicationRoutes from './routes'
 import { CustomError } from '@src/shared/globals/helpers/error-handler';
+import Logger from 'bunyan'
 
+const log:Logger = config.createLogger("server")
 const SERVER_PORT = 8000;
 
 export class ChattyServer {
@@ -70,6 +72,7 @@ export class ChattyServer {
     applicationRoutes(app)
   }
   private globalErrorHandler(app: Application): void {
+    log.error('in the global error handler');
     app.use('*', (req:Request, res:Response)=>{
      return  res.status(HTTP_STATUS.NOT_FOUND).json({message: `${req.originalUrl} not found`})
     });
@@ -117,7 +120,7 @@ export class ChattyServer {
   // calling the listen method
   private startHttpServer(httpServer: http.Server): void {
     httpServer.listen(SERVER_PORT, () => {
-      console.log("server running ", SERVER_PORT);
+      log.info("server running ", SERVER_PORT);
     });
   }
 

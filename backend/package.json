@@ -4,12 +4,12 @@
   "description": "this is a typescript-social media app",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -r tsconfig-paths/register src/app.ts"
+    "dev": "nodemon -r tsconfig-paths/register src/app.ts | bunyan"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bunyan": "^1.8.11",
     "@types/compression": "^1.7.5",
     "@types/cookie-session": "^2.0.48",
     "@types/cors": "^2.8.17",
@@ -22,6 +22,7 @@
   "dependencies": {
     "@socket.io/redis-adapter": "^8.2.1",
     "@types/redis": "^4.0.11",
+    "bunyan": "^1.8.15",
     "compression": "^1.7.4",
     "cookie-session": "^2.0.0",
     "cors": "^2.8.5",
