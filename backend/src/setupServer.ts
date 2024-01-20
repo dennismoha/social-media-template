@@ -1,3 +1,4 @@
+import { IErrorResponse } from '@src/interfaces/error-handler-interfaces';
 import {
   Application,
   json,
@@ -20,6 +21,7 @@ import "express-async-errors";
 import compression from "compression";
 import { config } from "./config";
 import applicationRoutes from './routes'
+import { CustomError } from '@src/shared/globals/helpers/error-handler';
 
 const SERVER_PORT = 8000;
 
@@ -67,7 +69,19 @@ export class ChattyServer {
   private routeMiddleware(app: Application): void {
     applicationRoutes(app)
   }
-  private globalErrorHandler(app: Application): void {}
+  private globalErrorHandler(app: Application): void {
+    app.use('*', (req:Request, res:Response)=>{
+     return  res.status(HTTP_STATUS.NOT_FOUND).json({message: `${req.originalUrl} not found`})
+    });
+
+    app.use((error:IErrorResponse, _req:Request, res:Response, next:NextFunction)=>{
+      if(error instanceof CustomError){
+        return res.status(error.statusCode).json(error.serializeErrors())
+      }
+      next()
+      
+    })
+  }
 
   // creating http server
   private async startServer(app: Application): Promise<void> {
