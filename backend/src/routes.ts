@@ -1,8 +1,6 @@
 import { Application } from 'express';
 
 export default (app: Application) => {
-  const routes = () => {
-    app.use('hey');
-  };
+  const routes = () => {};
   routes();
 };
