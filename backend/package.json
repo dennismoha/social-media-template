@@ -14,6 +14,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
     "@types/bunyan": "^1.8.11",
     "@types/compression": "^1.7.5",
     "@types/cookie-session": "^2.0.48",
@@ -31,6 +32,8 @@
   "dependencies": {
     "@socket.io/redis-adapter": "^8.2.1",
     "@types/redis": "^4.0.11",
+    "bcrypt": "^5.1.1",
+    "bcryptjs": "^2.4.3",
     "bunyan": "^1.8.15",
     "cloudinary": "^1.41.3",
     "compression": "^1.7.4",
