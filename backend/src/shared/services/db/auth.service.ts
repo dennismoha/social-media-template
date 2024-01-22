@@ -1,4 +1,4 @@
-import { AuthModel } from '@src/features/models/auth.schema';
+import { AuthModel } from '@src/features/auth/models/auth.schema';
 import { IAuthDocument } from '@src/interfaces/auth.interface';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
 
@@ -12,4 +12,4 @@ class Authservice {
   }
 }
 
-export const authservice: Authservice = new Authservice()
+export const authservice: Authservice = new Authservice();

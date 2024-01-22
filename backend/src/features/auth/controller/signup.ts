@@ -1,4 +1,5 @@
-import { signupSchema } from '@src/features/schemes/signup';
+import  HTTP_STATUS  from 'http-status-codes';
+import { signupSchema } from '@src/features/auth/schemes/signup';
 import { IAuthDocument, ISignUpData } from '@src/interfaces/auth.interface';
 import { joiValidation } from '@src/shared/globals/decorators/joi-validation-decorators';
 import { uploads } from '@src/shared/globals/helpers/cloudinary-upload';
@@ -8,7 +9,6 @@ import { authservice } from '@src/shared/services/db/auth.service';
 import { UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
-
 
 export class Signup {
   @joiValidation(signupSchema)
@@ -33,9 +33,12 @@ export class Signup {
     });
 
     const result: UploadApiResponse = (await uploads(avatarImage, `${userObjectId}`, true, true)) as UploadApiResponse;
+    console.log('result is ', result);
     if (!result?.public_id) {
       throw new BadRequestError('fie upload: Error occured. ');
     }
+
+    res.status(HTTP_STATUS.CREATED).json({ message: 'user created successfully', authData });
   }
 
   private signupData(data: ISignUpData): IAuthDocument {
