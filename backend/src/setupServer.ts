@@ -64,6 +64,7 @@ export class ChattyServer {
   private routeMiddleware(app: Application): void {
     applicationRoutes(app);
   }
+
   private globalErrorHandler(app: Application): void {
     log.error('in the global error handler');
     app.use('*', (req: Request, res: Response) => {
@@ -117,7 +118,8 @@ export class ChattyServer {
   }
 
   // all socket io connections will be defined here
-  private socketIOConnections(io: Server): void {
-    log.info('io is',io);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  private socketIOConnections(_io: Server): void {
+    log.info('io is');
   }
 }
