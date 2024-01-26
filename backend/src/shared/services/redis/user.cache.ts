@@ -12,7 +12,7 @@ export class UserCache  extends BaseCache{
     super('userCache');
   }
 
-  public async saveUserToCache(key: string, userId: string, createdUser: IUserDocument): Promise<void>{
+  public async saveUserToCache(key: string, userUId: string, createdUser: IUserDocument): Promise<void>{
     const createdAt = new Date();
     const{
       _id,
@@ -89,7 +89,7 @@ export class UserCache  extends BaseCache{
         await this.client.connect();
       }
 
-      await this.client.ZADD('user', {score: parseInt(userId, 10), value: `${key}`});
+      await this.client.ZADD('user', {score: parseInt(userUId, 10), value: `${key}`});
       await this.client.HSET(`users:${key}`, dataToSave);
     } catch (error) {
       log.error(error);
