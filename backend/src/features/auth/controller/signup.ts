@@ -9,6 +9,13 @@ import { authservice } from '@src/shared/services/db/auth.service';
 import { UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import { IUserDocument } from '@src/features/user/interfaces/user.interface';
+import { UserCache } from '@src/shared/services/redis/user.cache';
+import { config } from '@src/config';
+
+
+const userCache:UserCache = new UserCache();
+const CLOUD_NAME = config.CLOUD_NAME;
 
 export class Signup {
   @joiValidation(signupSchema)
@@ -32,11 +39,17 @@ export class Signup {
       avatarColor
     });
 
+    // upload to cloudinary
     const result: UploadApiResponse = (await uploads(avatarImage, `${userObjectId}`, true, true)) as UploadApiResponse;
     console.log('result is ', result);
     if (!result?.public_id) {
       throw new BadRequestError('fie upload: Error occured. ');
     }
+
+    //add data to redis
+    const userDataForCache: IUserDocument = Signup.prototype.userData(authData, userObjectId );
+    userDataForCache.profilePicture = `http://res.cloudinary.com/${ CLOUD_NAME}/image/upload/v${result.version}/${userObjectId}`;
+    await userCache.saveUserToCache(`${userObjectId}`, uid, userDataForCache);
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'user created successfully', authData });
   }
@@ -53,4 +66,42 @@ export class Signup {
       createdAt: new Date()
     } as IAuthDocument;
   }
+
+  private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
+    const { _id, username, email, uId, password, avatarColor } = data;
+    return {
+      _id: userObjectId,
+      authId: _id,
+      uId,
+      username: Helpers.firstLetterToUpperCase(username),
+      email,
+      password,
+      avatarColor,
+      profilePicture: '',
+      blocked: [],
+      blockedBy: [],
+      work: '',
+      location: '',
+      school: '',
+      quote: '',
+      bgImageVersion: '',
+      bgImageId: '',
+      followersCount: 0,
+      followingCount: 0,
+      postsCount: 0,
+      notifications: {
+        messages: true,
+        reactions: true,
+        comments: true,
+        follows: true
+      },
+      social: {
+        facebook: '',
+        instagram: '',
+        twitter: '',
+        youtube: ''
+      }
+    } as unknown as IUserDocument;
+  }
+
 }
