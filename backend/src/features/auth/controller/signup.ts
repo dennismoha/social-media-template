@@ -16,6 +16,7 @@ import { omit } from 'lodash';
 import { authQueue } from '@src/shared/services/queues/auth.queue';
 import { ADD_AUTH_USER_TO_JOB, ADD_USER_TO_JOB } from '@src/constants';
 import { userQueue } from '@src/shared/services/queues/user.queue';
+import  JWT from 'jsonwebtoken';
 
 
 
@@ -59,9 +60,27 @@ export class Signup {
     // add to database
     omit(userDataForCache,['uid','email', 'avatacolor','password']);
     authQueue.AddAuthUserJob(ADD_AUTH_USER_TO_JOB,{value: userDataForCache});
-    userQueue.AddUserJob(ADD_USER_TO_JOB, {value: userDataForCache})
+    userQueue.AddUserJob(ADD_USER_TO_JOB, {value: userDataForCache});
 
-    res.status(HTTP_STATUS.CREATED).json({ message: 'user created successfully', authData });
+    const userJwt: string = Signup.prototype.signToken(authData,userObjectId);
+    req.session = {jwt: userJwt};
+
+    res.status(HTTP_STATUS.CREATED).json({ message: 'user created successfully', authData, token:userJwt });
+  }
+
+  // jwt logic during signup
+
+  public signToken(data: IAuthDocument, userObjectId: ObjectId): string {
+    return JWT.sign(
+      {
+        userId: userObjectId,
+        uId: data.uId,
+        email: data.email,
+        username: data.username,
+        avatarColor: data.avatarColor
+      },
+      config.JWT_TOKEN!
+    );
   }
 
   private signupData(data: ISignUpData): IAuthDocument {
