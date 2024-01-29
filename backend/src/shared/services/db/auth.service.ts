@@ -3,6 +3,13 @@ import { IAuthDocument } from '@src/interfaces/auth.interface';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
 
 class Authservice {
+  // this methods creates a user to the db:
+  // we use it in our auth.worker.ts
+
+  public async createAuthUser(data: IAuthDocument): Promise<void>{
+    await AuthModel.create(data);
+  }
+
   public async getUserByNameOrEmail(username: string, email: string): Promise<IAuthDocument> {
     const query = {
       $or: [{ username: Helpers.firstLetterToUpperCase(username) }, { email: Helpers.lowerCase(email) }]
