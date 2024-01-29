@@ -5,17 +5,15 @@ import Logger from 'bunyan';
 import {createBullBoard} from '@bull-board/api';
 import {BullAdapter} from '@bull-board/api/bullAdapter';
 import { ExpressAdapter } from '@bull-board/express';
+//import { ExpressAdapter } from '@bull-board/express';
 import { config } from '@src/config';
 import { IAuthJob } from '@src/interfaces/auth.interface';
 
 type IBaseJobData =
   |  IAuthJob
 
-
-let bullAdapters:BullAdapter[] = [];
-// export let serverAdapter: ExpressAdapter;
-export let serverAdapter: ExpressAdapter;
-console.log('express adapter is ', ExpressAdapter)
+let bullAdapters: BullAdapter[] = [];
+export let serverAdapter = new ExpressAdapter();
 
 export abstract class BaseQueue {
   queue: Queue.Queue;

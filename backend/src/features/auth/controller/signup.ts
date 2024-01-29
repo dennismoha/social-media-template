@@ -12,6 +12,9 @@ import { ObjectId } from 'mongodb';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserCache } from '@src/shared/services/redis/user.cache';
 import { config } from '@src/config';
+import { omit } from 'lodash';
+import { authQueue } from '@src/shared/services/queues/auth.queue';
+
 
 
 const userCache:UserCache = new UserCache();
@@ -50,6 +53,10 @@ export class Signup {
     const userDataForCache: IUserDocument = Signup.prototype.userData(authData, userObjectId );
     userDataForCache.profilePicture = `http://res.cloudinary.com/${ CLOUD_NAME}/image/upload/v${result.version}/${userObjectId}`;
     await userCache.saveUserToCache(`${userObjectId}`, uid, userDataForCache);
+
+    // add to database
+    omit(userDataForCache,['uid','email', 'avatacolor','password']);
+    authQueue.AddAuthUserJob('addAuthUserToJob',{value: userDataForCache});
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'user created successfully', authData });
   }
