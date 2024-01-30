@@ -3,6 +3,7 @@ import { BaseCache } from '@src/shared/services/redis/base.cache';
 import Logger from 'bunyan';
 import { config } from '@src/config';
 import { ServerError } from '@src/shared/globals/helpers/error-handler';
+import { Helpers } from '@src/shared/globals/helpers/helpers';
 
 
 const log: Logger = config.createLogger('userCache');
@@ -97,4 +98,41 @@ export class UserCache  extends BaseCache{
     }
 
   }
+
+  // fetch the cached user data from redis
+  public async getUserFromCache(userId: string): Promise<IUserDocument | null > {
+    try {
+      if(!this.client.isOpen){
+        await this.client.connect();
+      }
+
+      // in the hgetall function be aware of how the user id syntax is as in the redis eg: users:65b8d23e94fda8496b2dab56
+      const response: IUserDocument = await this.client.HGETALL(`users:${userId}`) as unknown as IUserDocument;
+
+      // NB: we only parsed as json for whatever is not sufficient to be a string
+
+      response.createdAt = new Date(Helpers.parseJson(`${response.createdAt}`));
+      response.postsCount = Helpers.parseJson(`${response.postsCount}`);
+      response.blocked = Helpers.parseJson(`${response.blocked}`);
+      response.blockedBy = Helpers.parseJson(`${response.blockedBy}`);
+      response.notifications = Helpers.parseJson(`${response.notifications}`);
+      response.social = Helpers.parseJson(`${response.social}`);
+      response.followersCount = Helpers.parseJson(`${response.followersCount}`);
+      response.followingCount = Helpers.parseJson(`${response.followingCount}`);
+      response.bgImageId = Helpers.parseJson(`${response.bgImageId}`);
+      response.bgImageVersion = Helpers.parseJson(`${response.bgImageVersion}`);
+      response.profilePicture = Helpers.parseJson(`${response.profilePicture}`);
+      response.work = Helpers.parseJson(`${response.work}`);
+      response.school = Helpers.parseJson(`${response.school}`);
+      response.location = Helpers.parseJson(`${response.location}`);
+      response.quote = Helpers.parseJson(`${response.quote}`);
+
+      return response;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Redis server error. Try again');
+    }
+  }
+
+
 }
