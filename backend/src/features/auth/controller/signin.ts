@@ -7,6 +7,8 @@ import { Request, Response } from 'express';
 import { config } from '@src/config';
 import JWT from 'jsonwebtoken';
 import { loginSchema } from '@src/features/auth/schemes/signin';
+import { IUserDocument } from '@src/features/user/interfaces/user.interface';
+import { userService } from '@src/shared/services/db/user.service';
 
 export class SignIn {
   @joiValidation(loginSchema)
@@ -16,13 +18,12 @@ export class SignIn {
     if (!existingUser) {
       throw new BadRequestError('Invalid credentials');
     }
-
     const passwordsMatch: boolean = await existingUser.comparePassword(password);
     if (!passwordsMatch) {
       throw new BadRequestError('Invalid credentials');
     }
-    // const user: IUserDocument = await userService.getUserByAuthId(`${existingUser._id}`);
-    const user = existingUser;
+
+    const user: IUserDocument = await userService.getUserByAuthId(`${existingUser._id}`);
     const userJwt: string = JWT.sign(
       {
         userId: user._id,
@@ -33,7 +34,19 @@ export class SignIn {
       },
       config.JWT_TOKEN!
     );
+
     req.session = { jwt: userJwt };
-    res.status(HTTP_STATUS.OK).json({ message: 'User login successfully', user: existingUser, token: userJwt });
+
+    const userDocument: IUserDocument = {
+      ...user,
+      authId: existingUser!._id,
+      username: existingUser!.username,
+      email: existingUser!.email,
+      avatarColor: existingUser!.avatarColor,
+      uId: existingUser!.uId,
+      createdAt: existingUser!.createdAt
+    } as IUserDocument;
+
+    res.status(HTTP_STATUS.OK).json({ message: 'User login successfully', user: userDocument, token: userJwt });
   }
 }

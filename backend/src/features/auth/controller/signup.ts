@@ -9,6 +9,7 @@ import { authservice } from '@src/shared/services/db/auth.service';
 import { UploadApiResponse } from 'cloudinary';
 import { Request, Response } from 'express';
 import { ObjectId } from 'mongodb';
+import Logger from 'bunyan';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserCache } from '@src/shared/services/redis/user.cache';
 import { config } from '@src/config';
@@ -18,6 +19,8 @@ import { ADD_AUTH_USER_TO_JOB, ADD_USER_TO_JOB } from '@src/constants';
 import { userQueue } from '@src/shared/services/queues/user.queue';
 import  JWT from 'jsonwebtoken';
 
+
+const log: Logger = config.createLogger('singup');
 
 
 const userCache:UserCache = new UserCache();
@@ -32,6 +35,8 @@ export class Signup {
       throw new BadRequestError('invalid credentials');
     }
 
+    // const authObjectId: ObjectId = new ObjectId();
+    // const userObjectId: ObjectId = authObjectId;
     const authObjectId: ObjectId = new ObjectId();
     const userObjectId: ObjectId = new ObjectId();
     const uid = `${Helpers.generateRandomIntegers(12)}`;
@@ -54,12 +59,17 @@ export class Signup {
 
     //add data to redis
     const userDataForCache: IUserDocument = Signup.prototype.userData(authData, userObjectId );
+    log.info('auth data before redis is  in the signup data ', authData);
+    log.info('user object id data before redis is  in the signup data ', userObjectId);
+    log.info('user data for cache is  before redis is  in the signup data ', userDataForCache);
+
     userDataForCache.profilePicture = `http://res.cloudinary.com/${ CLOUD_NAME}/image/upload/v${result.version}/${userObjectId}`;
     await userCache.saveUserToCache(`${userObjectId}`, uid, userDataForCache);
 
     // add to database
     omit(userDataForCache,['uid','email', 'avatacolor','password']);
-    authQueue.AddAuthUserJob(ADD_AUTH_USER_TO_JOB,{value: userDataForCache});
+    log.info('user data for cache is  after lodash ommission is  in the signup data ', userDataForCache);
+    authQueue.AddAuthUserJob(ADD_AUTH_USER_TO_JOB,{value: authData});
     userQueue.AddUserJob(ADD_USER_TO_JOB, {value: userDataForCache});
 
     const userJwt: string = Signup.prototype.signToken(authData,userObjectId);
@@ -85,6 +95,7 @@ export class Signup {
 
   private signupData(data: ISignUpData): IAuthDocument {
     const { _id, uId, email, username, password, avatarColor } = data;
+    log.info('id in the signup data ', _id);
     return {
       _id,
       uId,
@@ -95,6 +106,46 @@ export class Signup {
       createdAt: new Date()
     } as IAuthDocument;
   }
+
+  // private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
+  //   console.log('user object id is ', userObjectId);
+  //   const { _id, username, email, uId, password, avatarColor } = data;
+  //   console.log('id in userdata is ', _id)
+
+  //   return {
+  //     _id: userObjectId,
+  //     authId: _id,
+  //     uId,
+  //     username: Helpers.firstLetterToUpperCase(username),
+  //     email,
+  //     password,
+  //     avatarColor,
+  //     profilePicture: '',
+  //     blocked: [],
+  //     blockedBy: [],
+  //     work: '',
+  //     location: '',
+  //     school: '',
+  //     quote: '',
+  //     bgImageVersion: '',
+  //     bgImageId: '',
+  //     followersCount: 0,
+  //     followingCount: 0,
+  //     postsCount: 0,
+  //     notifications: {
+  //       messages: true,
+  //       reactions: true,
+  //       comments: true,
+  //       follows: true
+  //     },
+  //     social: {
+  //       facebook: '',
+  //       instagram: '',
+  //       twitter: '',
+  //       youtube: ''
+  //     }
+  //   } as unknown as IUserDocument;
+  // }
 
   private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
     const { _id, username, email, uId, password, avatarColor } = data;
@@ -132,5 +183,4 @@ export class Signup {
       }
     } as unknown as IUserDocument;
   }
-
 }
