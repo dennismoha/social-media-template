@@ -68,11 +68,12 @@ export class ChattyServer {
   private globalErrorHandler(app: Application): void {
     log.error('in the global error handler');
     app.use('*', (req: Request, res: Response) => {
-
+      log.error('in * global error handler');
       return res.status(HTTP_STATUS.NOT_FOUND).json({ message: `${req.originalUrl} not found` });
     });
 
     app.use((error: IErrorResponse, _req: Request, res: Response, next: NextFunction) => {
+      log.error('in error section of the global error handler ', error);
       if (error instanceof CustomError) {
         return res.status(error.statusCode).json(error.serializeErrors());
       }
