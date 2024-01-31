@@ -9,7 +9,7 @@ class Config {
   public DATABASE_URL: string | undefined;
   public DATABASE_USERNAME: string | undefined;
   public DATABASE_PASSWORD: string | undefined;
-  public JWT_TOKEN: string | undefined;
+  public JWT_TOKEN: string ;
   public NODE_ENV: string | undefined;
   public SECRET_COOKIE_KEY_ONE: string | undefined;
   public SECRET_COOKIE_KEY_TWO: string | undefined;
