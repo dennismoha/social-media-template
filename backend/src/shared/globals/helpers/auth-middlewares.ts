@@ -14,7 +14,6 @@ export class AuthMiddleware {
 
     try {
       const payload: AuthPayload = JWT.verify(req.session?.jwt, config.JWT_TOKEN) as AuthPayload;
-      console.log('req current user is ', payload);
       req.currentUser = payload;
     } catch (error) {
       throw new NotAuthorizedError('token invalid. please login again');
