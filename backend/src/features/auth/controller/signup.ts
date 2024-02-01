@@ -52,7 +52,7 @@ export class Signup {
 
     // upload to cloudinary
     const result: UploadApiResponse = (await uploads(avatarImage, `${userObjectId}`, true, true)) as UploadApiResponse;
-    console.log('result is ', result);
+
     if (!result?.public_id) {
       throw new BadRequestError('fie upload: Error occured. ');
     }
@@ -106,46 +106,6 @@ export class Signup {
       createdAt: new Date()
     } as IAuthDocument;
   }
-
-  // private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
-  //   console.log('user object id is ', userObjectId);
-  //   const { _id, username, email, uId, password, avatarColor } = data;
-  //   console.log('id in userdata is ', _id)
-
-  //   return {
-  //     _id: userObjectId,
-  //     authId: _id,
-  //     uId,
-  //     username: Helpers.firstLetterToUpperCase(username),
-  //     email,
-  //     password,
-  //     avatarColor,
-  //     profilePicture: '',
-  //     blocked: [],
-  //     blockedBy: [],
-  //     work: '',
-  //     location: '',
-  //     school: '',
-  //     quote: '',
-  //     bgImageVersion: '',
-  //     bgImageId: '',
-  //     followersCount: 0,
-  //     followingCount: 0,
-  //     postsCount: 0,
-  //     notifications: {
-  //       messages: true,
-  //       reactions: true,
-  //       comments: true,
-  //       follows: true
-  //     },
-  //     social: {
-  //       facebook: '',
-  //       instagram: '',
-  //       twitter: '',
-  //       youtube: ''
-  //     }
-  //   } as unknown as IUserDocument;
-  // }
 
   private userData(data: IAuthDocument, userObjectId: ObjectId): IUserDocument {
     const { _id, username, email, uId, password, avatarColor } = data;

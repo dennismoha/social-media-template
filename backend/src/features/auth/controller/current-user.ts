@@ -17,7 +17,7 @@ export class CurrentUser {
 
     // if user doesn't exist or for some reason redis is down, fetch him from the databasel
     const existingUser: IUserDocument = cachedUser ? cachedUser : await userService.getUserById(`${req.currentUser?.userId}`);
-    console.log('exisitng current user is ', existingUser);
+
      /* The if statement checks if the length of keys is greater than zero, meaning the existingUser object is not empty.If the condition is true,
     it sets isUser to true, assigns the JWT from the session to token (if req.session is defined),
     and assigns the entire existingUser object to the user variable. */
