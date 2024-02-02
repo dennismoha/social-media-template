@@ -47,7 +47,7 @@ class  MailTransport {
 
     try {
       await transporter.sendMail(mailOptions);
-      log.info(' development email sending');
+      log.info(' development email sent');
     } catch (error) {
       log.error('Error sending email ', error);
       throw new BadRequestError('error sending email');
