@@ -10,3 +10,8 @@ export const ADD_USER_POST_TO_JOB = 'addUserPostToJob';
 export const DELETE_USER_POST_TO_JOB = 'deleteUserPostToJob';
 export const EDIT_USER_POST_TO_JOB = 'editUserPostToJob';
 
+// EMAIL JOB NAMES
+
+export const ADD_EMAIL_TO_JOB = 'addemailToJob';
+export const FORGOT_PASSWORD = 'forgotPassword';
+

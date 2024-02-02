@@ -8,6 +8,7 @@ class UserQueue extends BaseQueue {
     this.processJob(ADD_USER_TO_JOB, 5, userWorker.addUserToDB);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   public AddUserJob(name: string, data: any): void {
     this.addJob(name, data);
   }
