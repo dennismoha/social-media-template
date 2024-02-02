@@ -19,7 +19,7 @@ sendGridMail.setApiKey(config.SENDGRID_API_KEY!);
 
 class  MailTransport {
 
-  private async sendeEmail(receiverEmail: string, subject: string, body:string): Promise<void>{
+  public async sendeEmail(receiverEmail: string, subject: string, body:string): Promise<void>{
     if(config.NODE_ENV === 'test' || config.NODE_ENV ==='development'){
       this.developmentEmailSender(receiverEmail, subject, body);
     }else {
