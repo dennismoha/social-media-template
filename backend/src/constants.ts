@@ -15,3 +15,7 @@ export const EDIT_USER_POST_TO_JOB = 'editUserPostToJob';
 export const ADD_EMAIL_TO_JOB = 'addemailToJob';
 export const FORGOT_PASSWORD = 'forgotPassword';
 
+// EMAIL RECEIVER
+
+export const RECEIVER_EMAIL = 'hillary.fritsch23@ethereal.email';
+

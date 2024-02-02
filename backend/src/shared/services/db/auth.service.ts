@@ -18,6 +18,15 @@ class Authservice {
     await AuthModel.create(data);
   }
 
+  // password token update;
+
+  public async updatePasswordToken(authId: string, token: string, tokenExpiration: number): Promise<void>{
+    await AuthModel.updateOne({_id: authId}, {
+      passwordResetToken: token,
+      passwordResetExpires: tokenExpiration
+    });
+  }
+
   public async getUserByNameOrEmail(username: string, email: string): Promise<IAuthDocument> {
     const query = {
       $or: [{ username: Helpers.firstLetterToUpperCase(username) }, { email: Helpers.lowerCase(email) }]
