@@ -8,9 +8,11 @@ import { ExpressAdapter } from '@bull-board/express';
 //import { ExpressAdapter } from '@bull-board/express';
 import { config } from '@src/config';
 import { IAuthJob } from '@src/interfaces/auth.interface';
+import { IEmailJob } from '@src/features/user/interfaces/user.interface';
 
 type IBaseJobData =
   |  IAuthJob
+  | IEmailJob
 
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter = new ExpressAdapter();
@@ -48,7 +50,7 @@ export abstract class BaseQueue {
   }
 
   // adding a job to a queue
-  protected addJob(name: string, data: IBaseJobData): void{
+  protected addJob(name: string, data: IBaseJobData ): void{
     // wait for 5 seconds before the job is retried
     this.queue.add(name, data, {attempts: 3, backoff:{type:'fixed', delay:5000}});
   }

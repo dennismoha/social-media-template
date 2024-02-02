@@ -7,3 +7,8 @@ export const BASE_PATH = '/api/v1';
 export const ADD_AUTH_USER_TO_JOB = 'addAuthUserToJob';
 export const ADD_USER_TO_JOB = 'addUserToJob';
 
+// EMAIL JOB NAMES
+
+export const ADD_EMAIL_TO_JOB = 'addemailToJob';
+export const FORGOT_PASSWORD = 'forgotPassword';
+
