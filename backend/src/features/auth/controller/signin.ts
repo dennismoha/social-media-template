@@ -9,6 +9,7 @@ import JWT from 'jsonwebtoken';
 import { loginSchema } from '@src/features/auth/schemes/signin';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { userService } from '@src/shared/services/db/user.service';
+import { mailTransport } from '@src/shared/services/emails/mail.transport';
 
 export class SignIn {
   @joiValidation(loginSchema)
@@ -34,6 +35,8 @@ export class SignIn {
       },
       config.JWT_TOKEN!
     );
+
+    await mailTransport.sendeEmail(' hillary.fritsch23@ethereal.email', 'email testing', 'this is the email test');
 
     req.session = { jwt: userJwt };
 
