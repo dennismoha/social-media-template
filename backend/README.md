@@ -24,3 +24,9 @@
 * if not create specific ids
 * upload the avatar to cloudinary
 * cache t
+
+
+# nodemailer
+* go to ethereal.email site
+* create an ethereal account
+* copy the generated user and passsword
