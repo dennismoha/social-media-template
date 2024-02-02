@@ -1,17 +1,19 @@
 import { Request, Response } from 'express';
 import moment from 'moment';
-import publicIP from 'ip';
+import publicIp from 'ip';
 import HTTP_STATUS from 'http-status-codes';
 import { config } from '@src/config';
 import { joiValidation } from '@src/shared/globals/decorators/joi-validation-decorators';
-import { emailSchema } from '@src/features/auth/schemes/password';
+import { emailSchema, passwordSchema } from '@src/features/auth/schemes/password';
 import { IAuthDocument } from '@src/interfaces/auth.interface';
 import { authservice } from '@src/shared/services/db/auth.service';
 import { BadRequestError } from '@src/shared/globals/helpers/error-handler';
 import crypto from 'crypto';
+import { forgotPasswordTemplate } from '@src/shared/services/emails/templates/forgot-password/forgot-password-template';
 import { emailQueue } from '@src/shared/services/queues/email.queue';
 import { FORGOT_PASSWORD, RECEIVER_EMAIL } from '@src/constants';
-import { forgotPasswordTemplate } from '@src/shared/services/emails/templates/forgot-password/forgot-password-template';
+import { resetPasswordTemplate } from '@src/shared/services/emails/templates/reset-password/reset-password-template';
+import { IResetPasswordParams } from '@src/features/user/interfaces/user.interface';
 
 export class Password {
   @joiValidation(emailSchema)
@@ -43,11 +45,49 @@ export class Password {
       template,
       subject: 'password reset confirmation'
     });
-    res.status(HTTP_STATUS.OK).json({message: 'password reset email sent'});
+    res.status(HTTP_STATUS.OK).json({ message: 'password reset email sent' });
+  }
+
+  @joiValidation(passwordSchema)
+  public async update(req: Request, res: Response): Promise<void> {
+    const { password, confirmPassword } = req.body;
+    const { token } = req.params;
+
+    if (password !== confirmPassword) {
+      throw new BadRequestError('password do not match');
+    }
+
+    // check if password with that token exists and not expired in the database
+    const existingUser: IAuthDocument = await authservice.getAuthUserByPasswordToken(token);
+
+    if (!existingUser) {
+      throw new BadRequestError('Reset token expired');
+    }
+
+    // if user exists,
+    existingUser.password = password;
+    existingUser.passwordResetExpires = undefined;
+    existingUser.passwordResetToken = undefined;
+
+    // save the new password to the dbl
+    await existingUser.save();
+
+    // add email info to queue to inform the user password was changed successfully
+    const templateParams: IResetPasswordParams = {
+      username: existingUser.username!,
+      email: existingUser.email!,
+      ipaddress: publicIp.address(),
+      date: moment().format('DD/MM/YY HH:mm')
+    };
+
+    const template: string = resetPasswordTemplate.passwordResetConfirmationTemplate(templateParams);
+    emailQueue.AddEmailJob(FORGOT_PASSWORD, {
+      receiverEmail: RECEIVER_EMAIL,
+      template,
+      subject: 'password reset confirmation'
+    });
+    res.status(HTTP_STATUS.OK).json({ message: 'password reset successfully' });
   }
 }
 
 export const password: Password = new Password();
-
-
-
