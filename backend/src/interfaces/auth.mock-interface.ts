@@ -10,7 +10,7 @@ export interface IAuthMock {
   email?: string;
   uId?: string;
   password?: string;
-  avatarColor: string;
+  avatarColor?: string;
   avatarImage?: string;
   createdAt?: Date | string;
 }
