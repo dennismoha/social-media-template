@@ -6,4 +6,5 @@ export const BASE_PATH = '/api/v1';
 
 export const ADD_AUTH_USER_TO_JOB = 'addAuthUserToJob';
 export const ADD_USER_TO_JOB = 'addUserToJob';
+export const ADD_USER_POST_TO_JOB = 'addUserPostToJob';
 

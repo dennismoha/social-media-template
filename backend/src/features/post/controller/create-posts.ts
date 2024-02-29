@@ -7,6 +7,8 @@ import { joiValidation } from '@src/shared/globals/decorators/joi-validation-dec
 import { Request, Response } from 'express';
 import { PostCache } from '@src/shared/services/redis/post.cache';
 import { SocketIOPostObject } from '@src/shared/sockets/posts';
+import { postQueue } from '@src/shared/services/queues/post.queue';
+import { ADD_USER_POST_TO_JOB } from '@src/constants';
 
 
 
@@ -48,6 +50,7 @@ export class CreatePost {
 
     // this can be either before saving to cache or after.
     SocketIOPostObject.emit('add post', createdPost);
+    postQueue.AddPostJob(ADD_USER_POST_TO_JOB,{key:req.currentUser!.userId, value:createdPost });
     res.status(HTTP_STATUS.CREATED).json(createdPost);
   }
 }
