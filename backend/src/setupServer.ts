@@ -41,8 +41,8 @@ export class ChattyServer {
       cookieSession({
         name: 'session',
         keys: [config.SECRET_COOKIE_KEY_ONE!, config.SECRET_COOKIE_KEY_TWO!],
-        maxAge: 10,
-        secure: config.NODE_ENV !== 'development'
+        maxAge: 24 * 7 * 3600000,
+       secure: config.NODE_ENV !== 'development'
       })
     );
     app.use(hpp());
