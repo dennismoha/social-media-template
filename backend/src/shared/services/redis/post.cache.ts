@@ -1,8 +1,9 @@
 
 import { BaseCache } from '@src/shared/services/redis/base.cache';
 import Logger from 'bunyan';
-import { ISavePostToCache } from '@src/features/post/interfaces/Post.interface';
+
 import { config } from '@src/config';
+import { ISavePostToCache } from '@src/features/post/interfaces/post.interface';
 
 
 
