@@ -1,10 +1,14 @@
+
 import { ObjectId } from 'mongodb';
 import HTTP_STATUS  from 'http-status-codes';
+import { IPostDocument } from '@src/features/post/interfaces/post.interface';
 import { postSchema } from '@src/features/post/schemes/post.schemes';
 import { joiValidation } from '@src/shared/globals/decorators/joi-validation-decorators';
 import { Request, Response } from 'express';
-import { IPostDocument } from '@src/features/post/interfaces/Post.interface';
 import { PostCache } from '@src/shared/services/redis/post.cache';
+import { SocketIOPostObject } from '@src/shared/sockets/posts';
+
+
 
 const postCache:PostCache = new PostCache();
 
@@ -41,6 +45,9 @@ export class CreatePost {
       uId:  `${req.currentUser!.userId}`,
       createdPost
     });
+
+    // this can be either before saving to cache or after.
+    SocketIOPostObject.emit('add post', createdPost);
     res.status(HTTP_STATUS.CREATED).json(createdPost);
   }
 }

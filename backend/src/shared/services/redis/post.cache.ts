@@ -1,10 +1,10 @@
-import { IUserDocument } from '@src/features/user/interfaces/user.interface';
+
 import { BaseCache } from '@src/shared/services/redis/base.cache';
 import Logger from 'bunyan';
-import { config } from '@src/config';
-import { ServerError } from '@src/shared/globals/helpers/error-handler';
-import { Helpers } from '@src/shared/globals/helpers/helpers';
 import { ISavePostToCache } from '@src/features/post/interfaces/Post.interface';
+import { config } from '@src/config';
+
+
 
 
 const log: Logger = config.createLogger('userCache');

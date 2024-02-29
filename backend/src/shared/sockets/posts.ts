@@ -1,7 +1,7 @@
 
 import { Server, Socket } from 'socket.io';
 
-let SocketIOPostObject: Server
+export let SocketIOPostObject: Server;
 
 export class SocketIOPostHandler {
   private io: Server;
@@ -12,6 +12,7 @@ export class SocketIOPostHandler {
   }
 
   public listen(): void {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.io.on('connection', (socket:Socket)=>{
       console.log('post socket connected');
     });
