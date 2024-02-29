@@ -1,9 +1,12 @@
 import { ObjectId } from 'mongodb';
 import HTTP_STATUS  from 'http-status-codes';
-import { postSchema } from "@src/features/post/schemes/post.schemes";
-import { joiValidation } from "@src/shared/globals/decorators/joi-validation-decorators";
+import { postSchema } from '@src/features/post/schemes/post.schemes';
+import { joiValidation } from '@src/shared/globals/decorators/joi-validation-decorators';
 import { Request, Response } from 'express';
 import { IPostDocument } from '@src/features/post/interfaces/Post.interface';
+import { PostCache } from '@src/shared/services/redis/post.cache';
+
+const postCache:PostCache = new PostCache();
 
 
 export class CreatePost {
@@ -32,6 +35,12 @@ export class CreatePost {
       reactions: { like: 0, love: 0, happy: 0, sad: 0, wow: 0, angry: 0 }
     } as IPostDocument;
 
+    await postCache.savePostToCache({
+      key: postObjectId,
+      currentUserId: `${req.currentUser!.userId}`,
+      uId:  `${req.currentUser!.userId}`,
+      createdPost
+    });
     res.status(HTTP_STATUS.CREATED).json(createdPost);
   }
 }
