@@ -16,6 +16,7 @@ import { config } from './config';
 import applicationRoutes from './routes';
 import { CustomError } from '@src/shared/globals/helpers/error-handler';
 import Logger from 'bunyan';
+import { SocketIOPostHandler } from '@src/shared/sockets/posts';
 
 const log: Logger = config.createLogger('server');
 const SERVER_PORT = 8000;
@@ -93,7 +94,7 @@ export class ChattyServer {
     }
   }
 
-  //socket io redis adapter setuo configuration
+  //socket io redis adapter setup configuration
   private async createSocketIO(httpServer: http.Server): Promise<Server> {
     const io: Server = new Server(httpServer, {
       cors: {
@@ -120,8 +121,10 @@ export class ChattyServer {
   }
 
   // all socket io connections will be defined here
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  private socketIOConnections(_io: Server): void {
+
+  private socketIOConnections(io: Server): void {
     log.info('io is');
+    const postSocketHandler: SocketIOPostHandler = new SocketIOPostHandler(io);
+    postSocketHandler.listen();
   }
 }
