@@ -3,14 +3,14 @@ import  { UpdateQuery } from 'mongoose';
 import Logger from 'bunyan';
 
 import { config } from '@src/config';
-import { IPostDocument } from '@src/features/post/interfaces/post.interface';
+import { IGetPostsQuery, IPostDocument } from '@src/features/post/interfaces/post.interface';
 import { PostModel } from '@src/features/post/models/post.schema';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserModel } from '@src/features/user/models/user.schema';
 
 
 
-const log: Logger = config.createLogger('singup');
+const log: Logger = config.createLogger('post');
 
 class PostService {
   public async addPostToDB(userId: string, createdPost: IPostDocument): Promise<void>{
@@ -29,8 +29,32 @@ class PostService {
     await Promise.all([post, user]);
   }
 
+  public async getPosts(query: IGetPostsQuery, skip=0,limit=0, sort:Record<string, 1 | -1> ): Promise<IPostDocument[]>{
+    let postQuery = {};
 
+    // check if  the query contains imgd and gifurl
+    if(query?.imgId && query?.gifUrl){
+      postQuery = {$or: [{imgId:{$ne: ''}}, {gifUrl:{$ne: ''}}]}; // returns payload where imgId or gifUrl is not empty
+    }else {
+      postQuery = query;
+    }
 
+    const posts: IPostDocument[] = await PostModel.aggregate([
+      {$match: postQuery},
+      {$sort: sort},
+      {$skip: skip},
+      {$limit: limit}
+    ]);
+
+    return posts;
+  }
+
+  //  counts the number of posts you have in a collection
+
+  public async postsCount(): Promise<number>{
+    const count: number = await PostModel.find({}).countDocuments();
+    return count;
+  }
 
 }
 
