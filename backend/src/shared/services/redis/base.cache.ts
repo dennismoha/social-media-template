@@ -16,6 +16,7 @@ export abstract class BaseCache {
 
   private cacheError(): void {
     this.client.on('error', (error: unknown) => {
+      console.log('error is ', error);
       this.log.error(error);
     });
   }
