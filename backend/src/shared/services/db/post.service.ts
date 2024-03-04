@@ -1,9 +1,9 @@
-import  { UpdateQuery } from 'mongoose';
+import  { Query, UpdateQuery } from 'mongoose';
 
 import Logger from 'bunyan';
 
 import { config } from '@src/config';
-import { IGetPostsQuery, IPostDocument } from '@src/features/post/interfaces/post.interface';
+import { IGetPostsQuery, IPostDocument, IQueryComplete, IQueryDeleted } from '@src/features/post/interfaces/post.interface';
 import { PostModel } from '@src/features/post/models/post.schema';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserModel } from '@src/features/user/models/user.schema';
@@ -54,6 +54,15 @@ class PostService {
   public async postsCount(): Promise<number>{
     const count: number = await PostModel.find({}).countDocuments();
     return count;
+  }
+
+  // delete posts from db
+  public async deletePost(postId: string, userId: string): Promise<void>{
+    const deletePost: Query<IQueryComplete & IQueryDeleted, IPostDocument  > =  PostModel.deleteOne({_id: postId});
+    const decrementPostCount: UpdateQuery<IUserDocument> =  UserModel.updateOne({_id: userId}, {$inc: {postsCount: -1}});
+
+    await Promise.all([deletePost, decrementPostCount]);
+
   }
 
 }

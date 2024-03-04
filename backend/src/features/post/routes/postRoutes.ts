@@ -1,4 +1,5 @@
 import { CreatePost } from '@src/features/post/controller/create-posts';
+import { DeletePost } from '@src/features/post/controller/delete-post';
 import { GetPosts } from '@src/features/post/controller/get-posts';
 import { authMiddleware  } from '@src/shared/globals/helpers/auth-middlewares';
 import express, { Router } from 'express';
@@ -17,6 +18,8 @@ class PostRoutes {
     this.router.get('/post/images/:page', authMiddleware.checkAuthentication,GetPosts.prototype.fetchPostsWithImages);
     this.router.post('/post', authMiddleware.checkAuthentication,CreatePost.prototype.post);
     this.router.post('/post/image/post', authMiddleware.checkAuthentication,CreatePost.prototype.postWithImage);
+    this.router.delete('/post/:postId', authMiddleware.checkAuthentication,DeletePost.prototype.deletePost);
+
 
     return  this.router;
   }

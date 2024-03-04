@@ -311,4 +311,42 @@ export class PostCache extends BaseCache {
       throw new ServerError('Server error. Try again');
     }
   }
+
+
+  // Retrieve total number of  posts of a particular user from cache
+
+  public async deletePostsFromCache(key: string, currentUserId: string): Promise<void> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+      const postCount: string[] = await this.client.HMGET(`users:${currentUserId}`, 'postsCount');
+      const multi: ReturnType<typeof this.client.multi> = this.client.multi();
+
+      // we first remove an item from the sorted set. So we use the ZREM
+      // NB: the key we are passing is the value in the sorted sorted
+      multi.ZREM('post',`${key}`);
+
+      // delete the posts in the hash
+      multi.DEL(`posts:${key}`);
+
+      // since data in redis is saved as strings, so postCount will be a string so we convert it to a number:
+      // then decrement one post
+      const count: number = parseInt(postCount[0], 10) - 1;
+
+      // will update the post count hash in the users hash
+
+      multi.HSET(`users:${currentUserId}`, ['postsCount', count]);
+
+      // we execute the all functions
+
+      multi.exec();
+
+
+    } catch (error) {
+      log.error('error', 'redis connection for fetching totla number of post caching error');
+      throw new ServerError('Server error. Try again');
+    }
+  }
+
 }
