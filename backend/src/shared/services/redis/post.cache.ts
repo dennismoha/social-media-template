@@ -123,7 +123,7 @@ export class PostCache extends BaseCache {
         await this.client.connect();
       }
 
-      const count: number = await this.client.ZCARD('posts');
+      const count: number = await this.client.ZCARD('post');
       return count;
     } catch (error) {
       log.error('error', 'redis connection for fetching totla number of post caching error');
@@ -133,13 +133,13 @@ export class PostCache extends BaseCache {
 
   // Retrieve total number of  posts of a particular user from cache
 
-  public async getTotalNumberOfaUserPostsFromCache(uId:number): Promise<number> {
+  public async getTotalNumberOfaUserPostsFromCache(uId: number): Promise<number> {
     try {
       if (!this.client.isOpen) {
         await this.client.connect();
       }
 
-      const count: number = await this.client.ZCOUNT('posts',uId,uId);
+      const count: number = await this.client.ZCOUNT('posts', uId, uId);
       return count;
     } catch (error) {
       log.error('error', 'redis connection for fetching totla number of post caching error');
@@ -159,7 +159,9 @@ export class PostCache extends BaseCache {
       // ZRANGE returns an array of sets.
       // REV key returns them in reversed order. which means from the one latest added
 
-      const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
+      // this throws out an error which I have to sit down and settle
+     // const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
+      const reply: string[] = await this.client.ZRANGE(key, start, end);
 
       /*
         To get multiple posts from multiple hashes, we cannot use
@@ -212,7 +214,9 @@ export class PostCache extends BaseCache {
       // ZRANGE returns an array of sets.
       // REV key returns them in reversed order. which means from the one latest added
 
-      const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
+      // will check on why rev is not working
+      //const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
+      const reply: string[] = await this.client.ZRANGE(key, start, end);
 
       /*
         To get multiple posts from multiple hashes, we cannot use
@@ -255,7 +259,6 @@ export class PostCache extends BaseCache {
     }
   }
 
-
   // Retrieve posts of a particular user  from cache
   // This is done using pagination. We cannot retrieve all posts at once . that's expensive
   public async getUserPostsFromCache(key: string, uid: number): Promise<IPostDocument[]> {
@@ -296,10 +299,10 @@ export class PostCache extends BaseCache {
       // convert some values from strings to their respective number types
 
       for (const post of replies as IPostDocument[]) {
-          post.commentsCount = Helpers.parseJson(`${post.commentsCount}`) as number;
-          post.reactions = Helpers.parseJson(`${post.reactions}`) as IReactions;
-          post.createdAt = new Date(Helpers.parseJson(`${post.createdAt}`));
-          postRepliesFromUser.push(post);
+        post.commentsCount = Helpers.parseJson(`${post.commentsCount}`) as number;
+        post.reactions = Helpers.parseJson(`${post.reactions}`) as IReactions;
+        post.createdAt = new Date(Helpers.parseJson(`${post.createdAt}`));
+        postRepliesFromUser.push(post);
       }
 
       return postRepliesFromUser;
