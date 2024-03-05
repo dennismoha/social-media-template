@@ -8,4 +8,5 @@ export const ADD_AUTH_USER_TO_JOB = 'addAuthUserToJob';
 export const ADD_USER_TO_JOB = 'addUserToJob';
 export const ADD_USER_POST_TO_JOB = 'addUserPostToJob';
 export const DELETE_USER_POST_TO_JOB = 'deleteUserPostToJob';
+export const EDIT_USER_POST_TO_JOB = 'editUserPostToJob';
 
