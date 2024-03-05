@@ -37,44 +37,63 @@ export class PostCache extends BaseCache {
       createdAt
     } = createdPost;
 
-    const firstList: string[] = [
-      '_id',
-      `${_id}`,
-      'userId',
-      `${userId}`,
-      'username',
-      `${username}`,
-      'email',
-      `${email}`,
-      'avatarColor',
-      `${avatarColor}`,
-      'profilePicture',
-      `${profilePicture}`,
-      'post',
-      `${post}`,
-      'bgColor',
-      `${bgColor}`,
-      'feelings',
-      `${feelings}`,
-      'privacy',
-      `${privacy}`,
-      'gifUrl',
-      `${gifUrl}`
-    ];
+    // const firstList: string[] = [
+    //   '_id',
+    //   `${_id}`,
+    //   'userId',
+    //   `${userId}`,
+    //   'username',
+    //   `${username}`,
+    //   'email',
+    //   `${email}`,
+    //   'avatarColor',
+    //   `${avatarColor}`,
+    //   'profilePicture',
+    //   `${profilePicture}`,
+    //   'post',
+    //   `${post}`,
+    //   'bgColor',
+    //   `${bgColor}`,
+    //   'feelings',
+    //   `${feelings}`,
+    //   'privacy',
+    //   `${privacy}`,
+    //   'gifUrl',
+    //   `${gifUrl}`
+    // ];
 
-    const secondList: string[] = [
-      'commentsCount',
-      `${commentsCount}`,
-      'reactions',
-      JSON.stringify(reactions),
-      'imgVersion',
-      `${imgVersion}`,
-      'imgId',
-      `${imgId}`,
-      'createdAt',
-      `${createdAt}`
-    ];
-    const dataToSave: string[] = [...firstList, ...secondList];
+    // const secondList: string[] = [
+    //   'commentsCount',
+    //   `${commentsCount}`,
+    //   'reactions',
+    //   JSON.stringify(reactions),
+    //   'imgVersion',
+    //   `${imgVersion}`,
+    //   'imgId',
+    //   `${imgId}`,
+    //   'createdAt',
+    //   `${createdAt}`
+    // ];
+    // const dataToSave: string[] = [...firstList, ...secondList];
+
+    const dataToSave = {
+      _id: `${_id}`,
+      userId: `${userId}`,
+      username: `${username}`,
+      email: `${email}`,
+      avatarColor: `${avatarColor}`,
+      profilePicture: `${profilePicture}`,
+      post: `${post}`,
+      bgColor: `${bgColor}`,
+      feelings: `${feelings}`,
+      privacy: `${privacy}`,
+      gifUrl: `${gifUrl}`,
+      commentsCount: `${commentsCount}`,
+      reactions: JSON.stringify(reactions),
+      imgVersion: `${imgVersion}`,
+      imgId: `${imgId}`,
+      createdAt: `${createdAt}`
+    };
 
     // When creating a new post, we have to update the number of posts for the user
     try {
@@ -97,14 +116,18 @@ export class PostCache extends BaseCache {
       multi.ZADD('post', { score: parseInt(uId, 10), value: `${key}` });
 
       // set the redis hash for the post
-      multi.HSET(`posts:${key}`, dataToSave); // key here is the post id
+
+      // multi.HSET(`posts:${key}`, dataToSave); // this format is deprecated as per the latest version of redis
+      for (const [itemKey, itemValue] of Object.entries(dataToSave)) {
+        multi.HSET(`posts:${key}`, `${itemKey}`, `${itemValue}`); // key here is the post id
+      }
 
       // since data in redis is saved as strings, so postCount will be a string so we convert it to a number:
       const count: number = parseInt(postCount[0], 10) + 1;
 
       // will update the post count hash in the users hash
 
-      multi.HSET(`users:${currentUserId}`, ['postsCount', count]);
+      multi.HSET(`users:${currentUserId}`, 'postsCount', count);
 
       // we execute the all functions
 
@@ -160,7 +183,7 @@ export class PostCache extends BaseCache {
       // REV key returns them in reversed order. which means from the one latest added
 
       // this throws out an error which I have to sit down and settle
-     // const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
+      // const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
       const reply: string[] = await this.client.ZRANGE(key, start, end);
 
       /*
@@ -312,8 +335,72 @@ export class PostCache extends BaseCache {
     }
   }
 
+  // update post of a particular user in cache
 
-  // Retrieve total number of  posts of a particular user from cache
+  public async updatePostInCache(key: string, updatedPost: IPostDocument): Promise<IPostDocument> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const { post, bgColor, feelings, privacy, gifUrl, imgVersion, imgId, profilePicture } = updatedPost;
+      // const firstList: string[] = [
+      //   'post',
+      //   `${post}`,
+      //   'bgColor',
+      //   `${bgColor}`,
+      //   'feelings',
+      //   `${feelings}`,
+      //   'privacy',
+      //   `${privacy}`,
+      //   'gifUrl',
+      //   `${gifUrl}`
+      // ];
+      // const secondList: string[] = ['profilePicture', `${profilePicture}`, 'imgVersion', `${imgVersion}`, 'imgId', `${imgId}`];
+      // const dataToSave: string[] = [...firstList, ...secondList];
+      const dataToSave = {
+        post: `${post}`,
+        bgColor: `${bgColor}`,
+        feelings: `${feelings}`,
+        privacy: `${privacy}`,
+        gifUrl: `${gifUrl}`,
+        profilePicture: `${profilePicture}`,
+        imgVersion: `${imgVersion}`,
+        imgId: `${imgId}`
+      };
+
+      // update the post in cache with the new data
+      for (const [itemKey, itemValue] of Object.entries(dataToSave)) {
+        await this.client.HSET(`posts:${key}`, `${itemKey}`, `${itemValue}`); // key here is the post id
+      }
+      // initialize multi
+      const multi: ReturnType<typeof this.client.multi> = this.client.multi();
+
+      // get the fields and values stored in the hash. These will be the new updated
+      multi.HGETALL(`posts:${key}`);
+
+      // execute the multi
+      const reply: PostCacheMultiType = (await multi.exec()) as PostCacheMultiType;
+      log.info(' reply: ', reply);
+
+      const postReply = reply as IPostDocument[];
+
+      log.info('post reply ', postReply);
+      log.info('post reply 0000: ', postReply[0]);
+
+      // then we convert comments, reactions and created at from strings to numbers
+
+      postReply[0].commentsCount = Helpers.parseJson(`${postReply[0].commentsCount}`) as number;
+      postReply[0].reactions = Helpers.parseJson(`${postReply[0].reactions}`) as IReactions;
+      postReply[0].createdAt = new Date(Helpers.parseJson(`${postReply[0].createdAt}`)) as Date;
+
+      return postReply[0];
+    } catch (error) {
+      log.error('error redis connection for updating a  post in cache error', error);
+      throw new ServerError('Server error. Try again');
+    }
+  }
+  // delete post user from cache
 
   public async deletePostsFromCache(key: string, currentUserId: string): Promise<void> {
     try {
@@ -325,7 +412,7 @@ export class PostCache extends BaseCache {
 
       // we first remove an item from the sorted set. So we use the ZREM
       // NB: the key we are passing is the value in the sorted sorted
-      multi.ZREM('post',`${key}`);
+      multi.ZREM('post', `${key}`);
 
       // delete the posts in the hash
       multi.DEL(`posts:${key}`);
@@ -336,17 +423,14 @@ export class PostCache extends BaseCache {
 
       // will update the post count hash in the users hash
 
-      multi.HSET(`users:${currentUserId}`, ['postsCount', count]);
+      multi.HSET(`users:${currentUserId}`, 'postsCount', count);
 
       // we execute the all functions
 
       multi.exec();
-
-
     } catch (error) {
       log.error('error', 'redis connection for fetching totla number of post caching error');
       throw new ServerError('Server error. Try again');
     }
   }
-
 }
