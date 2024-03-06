@@ -3,9 +3,10 @@ import Logger from 'bunyan';
 import { RedisCommandRawReply } from '@redis/client/dist/lib/commands';
 
 import { config } from '@src/config';
-import { IPostDocument, IReactions, ISavePostToCache } from '@src/features/post/interfaces/post.interface';
+import { IPostDocument,  ISavePostToCache } from '@src/features/post/interfaces/post.interface';
 import { ServerError } from '@src/shared/globals/helpers/error-handler';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
+import { IReactions } from '@src/features/reactions/interfaces/reaction.interface';
 
 const log: Logger = config.createLogger('userCache');
 export type PostCacheMultiType = string | number | Buffer | RedisCommandRawReply[] | IPostDocument | IPostDocument[];
@@ -37,44 +38,7 @@ export class PostCache extends BaseCache {
       createdAt
     } = createdPost;
 
-    // const firstList: string[] = [
-    //   '_id',
-    //   `${_id}`,
-    //   'userId',
-    //   `${userId}`,
-    //   'username',
-    //   `${username}`,
-    //   'email',
-    //   `${email}`,
-    //   'avatarColor',
-    //   `${avatarColor}`,
-    //   'profilePicture',
-    //   `${profilePicture}`,
-    //   'post',
-    //   `${post}`,
-    //   'bgColor',
-    //   `${bgColor}`,
-    //   'feelings',
-    //   `${feelings}`,
-    //   'privacy',
-    //   `${privacy}`,
-    //   'gifUrl',
-    //   `${gifUrl}`
-    // ];
 
-    // const secondList: string[] = [
-    //   'commentsCount',
-    //   `${commentsCount}`,
-    //   'reactions',
-    //   JSON.stringify(reactions),
-    //   'imgVersion',
-    //   `${imgVersion}`,
-    //   'imgId',
-    //   `${imgId}`,
-    //   'createdAt',
-    //   `${createdAt}`
-    // ];
-    // const dataToSave: string[] = [...firstList, ...secondList];
 
     const dataToSave = {
       _id: `${_id}`,
