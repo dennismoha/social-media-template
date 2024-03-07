@@ -13,11 +13,14 @@ import { IPostJobData } from '@src/features/post/interfaces/post.interface';
 
 
 import { IEmailJob } from '@src/features/user/interfaces/user.interface';
+import { IReactionJob } from '@src/features/reactions/interfaces/reaction.interface';
+
 
 type IBaseJobData =
   |  IAuthJob
   | IPostJobData
   | IEmailJob
+  | IReactionJob
 
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter = new ExpressAdapter();

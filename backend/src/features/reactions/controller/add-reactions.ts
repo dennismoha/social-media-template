@@ -1,19 +1,14 @@
 import { ObjectId } from 'mongodb';
 import HTTP_STATUS from 'http-status-codes';
-import { IPostDocument } from '@src/features/post/interfaces/post.interface';
-import { postSchema, postWithImageSchema } from '@src/features/post/schemes/post.schemes';
+
 import { joiValidation } from '@src/shared/globals/decorators/joi-validation-decorators';
 import { Request, Response } from 'express';
-import { PostCache } from '@src/shared/services/redis/post.cache';
-import { SocketIOPostObject } from '@src/shared/sockets/posts';
-import { postQueue } from '@src/shared/services/queues/post.queue';
-import { ADD_USER_POST_TO_JOB } from '@src/constants';
-import { UploadApiResponse } from 'cloudinary';
-import { uploads } from '@src/shared/globals/helpers/cloudinary-upload';
-import { BadRequestError } from '@src/shared/globals/helpers/error-handler';
+
 import { addReactionSchema } from '@src/features/reactions/schemes/reactions';
-import { IReactionDocument } from '@src/features/reactions/interfaces/reaction.interface';
+import { IReactionDocument, IReactionJob } from '@src/features/reactions/interfaces/reaction.interface';
 import { ReactionCache } from '@src/shared/services/redis/reaction-cache';
+import {  ADD_REACTION_TO_DB_JOB } from '@src/constants';
+import { reactionQueue } from '@src/shared/services/queues/reaction.queue';
 
 
 const reactionCache: ReactionCache = new ReactionCache();
@@ -34,6 +29,20 @@ export class Reactions {
     } as IReactionDocument;
 
     await reactionCache.savePostReactionToCache(postId, reactionObject, postReactions, type, previousReaction);
+
+    // add reactions to cache
+    const databaseReactionData: IReactionJob = {
+      postId,
+      userTo,
+      userFrom: req.currentUser!.userId,
+      username: req.currentUser!.username,
+      type,
+      previousReaction,
+      reactionObject
+    };
+
+    reactionQueue.AddReactionJob(ADD_REACTION_TO_DB_JOB, databaseReactionData);
+    res.status(HTTP_STATUS.OK).json({ message: 'Reaction added successfully' });
 
 
     res.status(HTTP_STATUS.CREATED).json({message: 'reaction succesfully added'});

@@ -34,7 +34,7 @@ export class ReactionCache extends BaseCache {
       // if no previous reaction, create one
       if (type) {
         // so here we add the new redis list hash
-        await this.client.LPUSH(`reations:${key}`, JSON.stringify(reaction));
+        await this.client.LPUSH(`reactions:${key}`, JSON.stringify(reaction));
         // Then we update the respective post the reactions field
         const dataToSave: string[] = ['reactions', JSON.stringify(postReactions)];
         await this.client.HSET(`posts:${key}`, dataToSave);
@@ -53,12 +53,14 @@ export class ReactionCache extends BaseCache {
       }
 
       // since we are saving the reactions in a redis list and not cache we need to use LRANGE to fetch data from the list
-
+      console.log('key is ', key);
       const response: string[] = await this.client.LRANGE(`reactions:${key}`, 0, -1);
+      console.log('the response is ', response);
 
       // initialize multi
       const multi: ReturnType<typeof this.client.multi> = this.client.multi();
       const userPreviousReaction: IReactionDocument = this.getPreviousReaction(response, username) as IReactionDocument;
+      console.log('user previous reaction ', userPreviousReaction);
 
       // To remove an element from a redis list we use LREM
       // in this case 1 means remove only one element;
@@ -88,5 +90,65 @@ export class ReactionCache extends BaseCache {
     return find(list, (listItem: IReactionDocument) => {
       return listItem.username === username;
     });
+  }
+
+  // get all reactions for a single post
+  public async getReactionsFromCache(postId: string): Promise<[IReactionDocument[], number]> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      // remember reactions are saved in a redis list. So we get the length of the list first using LLEN
+      const reactionsCount: number = await this.client.LLEN(`reactions:${postId}`);
+
+      // then return the list of all reactions
+      const response: string[] = await this.client.LRANGE(`reactions:${postId}`, 0, -1);
+
+      // we stringify each list
+      const list: IReactionDocument[] = [];
+
+      // pass each string list to a json object
+      for (const item of response) {
+        list.push(Helpers.parseJson(item));
+      }
+
+      // if response.length > 0 return the lists and reactions count
+      return response.length ? [list, reactionsCount] : [[], 0];
+    } catch (error) {
+      log.error('fetching reactions of a single post error: ', error);
+      throw new ServerError('server error. Try again');
+    }
+  }
+
+  // get a single reaction by username  a single post
+  public async getSingleReactionByUsernameFromCache(postId: string, username: string): Promise<[IReactionDocument,number] | []> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      // we fetch the list of all reactions
+      const response: string[] = await this.client.LRANGE(`reactions:${postId}`, 0, -1);
+
+      // we parse each each list
+      const list: IReactionDocument[] = [];
+
+      // pass each string list to a json object
+      for (const item of response) {
+        list.push(Helpers.parseJson(item));
+      }
+
+      //find that specific reaction where postID === current post and username === passed username
+      const result: IReactionDocument = find(list, (listItem: IReactionDocument) => {
+        return listItem.postId === postId && listItem.username === username;
+      }) as IReactionDocument;
+
+      // if response.length > 0 return the lists and reactions count
+      return result ? [result, 1] : [];
+    } catch (error) {
+      log.error('fetching reactions of a single post error: ', error);
+      throw new ServerError('server error. Try again');
+    }
   }
 }
