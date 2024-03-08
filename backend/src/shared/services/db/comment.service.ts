@@ -42,6 +42,7 @@ class CommentService {
     return comments;
   }
 
+  // get comments name from a particular post
   public async getPostCommentNames(query: IQueryComment, sort: Record<string, 1 | -1>): Promise<ICommentNameList[]> {
     const commentsNamesList: ICommentNameList[] = await CommentsModel.aggregate([
       { $match: query },
