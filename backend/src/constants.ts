@@ -14,11 +14,16 @@ export const EDIT_USER_POST_TO_JOB = 'editUserPostToJob';
 export const ADD_REACTION_TO_DB_JOB = 'addUserReactionToDbJob';
 export const REMOVE_REACTION_FROM_DB_JOB = 'removeUserReactionFromDbJob';
 
+// FOLLOWERS JOB
+
+export const ADD_FOLLOWER_TO_DB_JOB = 'addFollowersToDbJob';
+
 // COMMENT JOB
 
 export const ADD_COMMENT_TO_DB_JOB = 'addUserCommentToDbJob';
 
 // EMAIL JOB NAMES
+
 
 export const ADD_EMAIL_TO_JOB = 'addemailToJob';
 export const FORGOT_PASSWORD = 'forgotPassword';
