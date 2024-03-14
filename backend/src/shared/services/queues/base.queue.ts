@@ -9,6 +9,7 @@ import { ExpressAdapter } from '@bull-board/express';
 import { config } from '@src/config';
 import { IAuthJob } from '@src/interfaces/auth.interface';
 import { IPostJobData } from '@src/features/post/interfaces/post.interface';
+import { ICommentJob } from '@src/features/comments/interfaces/comment.interface';
 
 
 
@@ -21,6 +22,7 @@ type IBaseJobData =
   | IPostJobData
   | IEmailJob
   | IReactionJob
+  | ICommentJob
 
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter = new ExpressAdapter();
