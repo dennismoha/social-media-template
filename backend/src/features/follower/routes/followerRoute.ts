@@ -1,4 +1,5 @@
 import { Add } from '@src/features/follower/controllers/follower-user';
+import { Remove } from '@src/features/follower/controllers/unfollow-user';
 import { authMiddleware } from '@src/shared/globals/helpers/auth-middlewares';
 import express, { Router } from 'express';
 
@@ -15,7 +16,7 @@ class FollowerRoutes {
     // this.router.get('/user/followers/:userId', authMiddleware.checkAuthentication, Get.prototype.userFollowers);
 
     this.router.put('/user/follow/:followerId', authMiddleware.checkAuthentication, Add.prototype.follower);
-    // this.router.put('/user/unfollow/:followeeId/:followerId', authMiddleware.checkAuthentication, Remove.prototype.follower);
+    this.router.put('/user/unfollow/:followeeId/:followerId', authMiddleware.checkAuthentication, Remove.prototype.follower);
     // this.router.put('/user/block/:followerId', authMiddleware.checkAuthentication, AddUser.prototype.block);
     // this.router.put('/user/unblock/:followerId', authMiddleware.checkAuthentication, AddUser.prototype.unblock);
 
