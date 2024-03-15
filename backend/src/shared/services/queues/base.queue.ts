@@ -15,6 +15,7 @@ import { ICommentJob } from '@src/features/comments/interfaces/comment.interface
 
 import { IEmailJob } from '@src/features/user/interfaces/user.interface';
 import { IReactionJob } from '@src/features/reactions/interfaces/reaction.interface';
+import { IFollowerJobData } from '@src/features/follower/interfaces/follower.interface';
 
 
 type IBaseJobData =
@@ -23,6 +24,7 @@ type IBaseJobData =
   | IEmailJob
   | IReactionJob
   | ICommentJob
+  | IFollowerJobData
 
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter = new ExpressAdapter();

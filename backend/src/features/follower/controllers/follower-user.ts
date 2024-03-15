@@ -1,6 +1,6 @@
 
 import { Request, Response } from 'express';
-// import { ObjectId } from 'mongodb';
+import { ObjectId } from 'mongodb';
 import HTTP_STATUS from 'http-status-codes';
 
 import mongoose from 'mongoose';
@@ -8,8 +8,9 @@ import { UserCache } from '@src/shared/services/redis/user.cache';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { IFollowerData } from '@src/features/follower/interfaces/follower.interface';
 import { SocketIOFollowerObject } from '@src/shared/sockets/follower';
-// import { followerQueue } from '@src/shared/services/queues/follower.queue';
 import { FollowersCache } from '@src/shared/services/redis/follower.cache';
+import { followerQueue } from '@src/shared/services/queues/follower.queue';
+import { ADD_FOLLOWER_TO_DB_JOB } from '@src/constants';
 
 
 const followerCache: FollowersCache = new FollowersCache();
@@ -55,7 +56,7 @@ export class Add {
     const cachedFollowee: Promise<IUserDocument> = userCache.getUserFromCache(`${req.currentUser!.userId}`) as Promise<IUserDocument>;
     const response: [IUserDocument, IUserDocument] = await Promise.all([cachedFollower, cachedFollowee]);
 
-    // const followerObjectId: ObjectId = new ObjectId();
+    const followerObjectId: ObjectId = new ObjectId();
 
     // This is the data we will be sending back to the client using socket.io
     const addFolloweeData: IFollowerData = Add.prototype.userData(response[0]);
@@ -84,12 +85,12 @@ export class Add {
     await Promise.all([addFollowerToCache, addFolloweeToCache]);
 
     // send the data to queue
-    // followerQueue.addFollowerJob('addFollowerToDB', {
-    //   keyOne: `${req.currentUser!.userId}`,
-    //   keyTwo: `${followerId}`,
-    //   username: req.currentUser!.username,
-    //   followerDocumentId: followerObjectId
-    // });
+    followerQueue.addFollowerJob(ADD_FOLLOWER_TO_DB_JOB, {
+      keyOne: `${req.currentUser!.userId}`,
+      keyTwo: `${followerId}`,
+      username: req.currentUser!.username,
+      followerDocumentId: followerObjectId
+    });
     res.status(HTTP_STATUS.OK).json({ message: 'Following user now' });
   }
 
