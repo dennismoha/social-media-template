@@ -17,6 +17,7 @@ export const REMOVE_REACTION_FROM_DB_JOB = 'removeUserReactionFromDbJob';
 // FOLLOWERS JOB
 
 export const ADD_FOLLOWER_TO_DB_JOB = 'addFollowersToDbJob';
+export const REMOVE_FOLLOWER_FROM_DB_JOB = 'removeFollowerFromDB';
 
 // COMMENT JOB
 
