@@ -50,9 +50,9 @@ export abstract class BaseQueue {
     this.log = config.createLogger(`${queuename}Queue`);
 
     // que events
-    // this.queue.on('completed', (job:Job )=>{
-    //   job.remove();
-    // });
+    this.queue.on('completed', (job:Job )=>{
+      job.remove();
+    });
     this.queue.on('global:completed', (jobId:string )=>{
       this.log.info(`Job ${jobId} completed`);
     });
