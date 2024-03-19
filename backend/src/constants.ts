@@ -18,6 +18,8 @@ export const REMOVE_REACTION_FROM_DB_JOB = 'removeUserReactionFromDbJob';
 
 export const ADD_FOLLOWER_TO_DB_JOB = 'addFollowersToDbJob';
 export const REMOVE_FOLLOWER_FROM_DB_JOB = 'removeFollowerFromDB';
+export const ADD_BLOCKED_USER_TO_DB = 'addBlockedUserToDB';
+export const REMOVE_BLOCKED_USER_FROM_DB = 'removeBlockedUserFromDB';
 
 // COMMENT JOB
 
