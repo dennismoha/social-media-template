@@ -27,7 +27,6 @@ export const ADD_COMMENT_TO_DB_JOB = 'addUserCommentToDbJob';
 
 // EMAIL JOB NAMES
 
-
 export const ADD_EMAIL_TO_JOB = 'addemailToJob';
 export const FORGOT_PASSWORD = 'forgotPassword';
 export const COMMENT_EMAIL = 'commentsEmail';
@@ -37,10 +36,15 @@ export const DIRECT_MESSAGE_EMAIL = 'directMessageEmail';
 
 // NOTIFICATION JOB NAMES
 
- export const UPDATE_NOTIFICATION = 'updateNotification';
- export const DELETE_NOTIFICATION = 'deleteNotification';
+export const UPDATE_NOTIFICATION = 'updateNotification';
+export const DELETE_NOTIFICATION = 'deleteNotification';
+
+// IMAGE JOB NAMES
+export const ADD_USER_PROFILE_IMAGE_TO_DB_JOB = 'addUserProfileImageToDB';
+export const UPDATE_BACKGROUND_IMAGE_TO_DB_JOB = 'updateBGImageInDB';
+export const ADD_IMAGE_TO_DB_JOB = 'addImageToDB';
+export const REMOVE_IMAGE_FROM_DB_JOB = 'removeImageFromDB';
 
 // EMAIL RECEIVER
 
 export const RECEIVER_EMAIL = 'hillary.fritsch23@ethereal.email';
-

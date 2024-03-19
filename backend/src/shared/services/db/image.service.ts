@@ -15,7 +15,7 @@ class ImageService {
   }
 
   // add background image to db
-  public async addBackgroundImageToDB(userId: string, url: string, imgId: string, imgVersion: string): Promise<void> {
+  public async addBackgroundImageToDB(userId: string,  imgId: string, imgVersion: string): Promise<void> {
     // update profile in the user collection
     await UserModel.updateOne({ _id: userId }, { $set: { bgImageId: imgId, bgImageVersion: imgVersion } }).exec();
 

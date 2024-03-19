@@ -7,10 +7,11 @@ import { Request, Response } from 'express';
 import { PostCache } from '@src/shared/services/redis/post.cache';
 import { SocketIOPostObject } from '@src/shared/sockets/posts';
 import { postQueue } from '@src/shared/services/queues/post.queue';
-import { ADD_USER_POST_TO_JOB } from '@src/constants';
+import { ADD_IMAGE_TO_DB_JOB, ADD_USER_POST_TO_JOB } from '@src/constants';
 import { UploadApiResponse } from 'cloudinary';
 import { uploads } from '@src/shared/globals/helpers/cloudinary-upload';
 import { BadRequestError } from '@src/shared/globals/helpers/error-handler';
+import { imageQueue } from '@src/shared/services/queues/image.queue';
 
 const postCache: PostCache = new PostCache();
 
@@ -109,7 +110,12 @@ export class CreatePost {
     postQueue.AddPostJob(ADD_USER_POST_TO_JOB, { key: req.currentUser!.userId, value: createdPost });
 
     // call image queue to add image to mongodb database
+    imageQueue.addImageJob(ADD_IMAGE_TO_DB_JOB, {
+      key: `${req.currentUser!.userId}`,
+      imgId: result.public_id,
+      imgVersion: result.version.toString()
+    });
 
-    res.status(HTTP_STATUS.CREATED).json({message: 'posts created with image successfull ', createdPost});
+    res.status(HTTP_STATUS.CREATED).json({ message: 'posts created with image successfull ', createdPost });
   }
 }
