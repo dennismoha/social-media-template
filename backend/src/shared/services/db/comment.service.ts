@@ -2,11 +2,13 @@
 
 import { ICommentDocument, ICommentJob, ICommentNameList, IQueryComment } from '@src/features/comments/interfaces/comment.interface';
 import { CommentsModel } from '@src/features/comments/models/comment.schema';
+import { INotificationDocument } from '@src/features/notifications/interfaces/notification.interface';
+import { NotificationModel } from '@src/features/notifications/models/notification.schema';
 import { IPostDocument } from '@src/features/post/interfaces/post.interface';
 import { PostModel } from '@src/features/post/models/post.schema';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserCache } from '@src/shared/services/redis/user.cache';
-import { Query } from 'mongoose';
+import mongoose, { Query } from 'mongoose';
 
 const userCache: UserCache = new UserCache();
 
@@ -31,6 +33,30 @@ class CommentService {
     const response: [ICommentDocument, IPostDocument, IUserDocument] = await Promise.all([comments, post, user]);
 
     // send comments notification
+
+    if(response[2].notifications.comments && userFrom !== userTo) {
+      // instatiation notification model this way gives us all methods defined in the notification schema
+      const notificationModel: INotificationDocument = new NotificationModel();
+      const notifications = await notificationModel.insertNotification({
+        userFrom,
+        userTo,
+        message: `${username} commented on your post.`,
+        notificationType: 'comment',
+        entityId: new mongoose.Types.ObjectId(postId),
+        createdItemId: new mongoose.Types.ObjectId(response[0]._id!),
+        createdAt: new Date(),
+        comment: comment.comment,
+        post: response[1].post,
+        imgId: response[1].imgId!,
+        imgVersion: response[1].imgVersion!,
+        gifUrl: response[1].gifUrl!,
+        reaction: ''
+      });
+      // send to client with socketio
+
+
+      // send to email queue
+    }
   }
 
   // returns multiple comments for a post or a single comment for a post
