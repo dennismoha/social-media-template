@@ -8,6 +8,11 @@ import { BadRequestError } from '@src/shared/globals/helpers/error-handler';
 import { UserCache } from '@src/shared/services/redis/user.cache';
 import mongoose from 'mongoose';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
+import { INotificationDocument, INotificationTemplate } from '@src/features/notifications/interfaces/notification.interface';
+import { NotificationModel } from '@src/features/notifications/models/notification.schema';
+import { socketIONotificationObject } from '@src/shared/sockets/notification';
+import { emailQueue } from '@src/shared/services/queues/email.queue';
+import { notificationTemplate } from '@src/shared/services/emails/templates/notifications/notification-template';
 
 const userCache: UserCache = new UserCache();
 class ReactionService {
@@ -47,6 +52,36 @@ class ReactionService {
       ])) as unknown as [IUserDocument, IReactionDocument, IPostDocument];
 
       // send notifications
+      if (updatedReaction[0].notifications.reactions && userTo !== userFrom) {
+        const notificationModel: INotificationDocument = new NotificationModel();
+        const notifications = await notificationModel.insertNotification({
+          userFrom: userFrom as string,
+          userTo: userTo as string,
+          message: `${username} reacted to your post.`,
+          notificationType: 'reactions',
+          entityId: new mongoose.Types.ObjectId(postId),
+          createdItemId: new mongoose.Types.ObjectId(updatedReaction[1]._id!),
+          createdAt: new Date(),
+          comment: '',
+          post: updatedReaction[2].post,
+          imgId: updatedReaction[2].imgId!,
+          imgVersion: updatedReaction[2].imgVersion!,
+          gifUrl: updatedReaction[2].gifUrl!,
+          reaction: type!
+        });
+        socketIONotificationObject.emit('insert notification', notifications, { userTo });
+        const templateParams: INotificationTemplate = {
+          username: updatedReaction[0].username!,
+          message: `${username} reacted to your post.`,
+          header: 'Post Reaction Notification'
+        };
+        const template: string = notificationTemplate.notificationMessageTemplate(templateParams);
+        emailQueue.AddEmailJob('reactionsEmail', {
+          receiverEmail: updatedReaction[0].email!,
+          template,
+          subject: 'Post reaction notification'
+        });
+      }
 
       console.log(updatedReaction);
     } catch (error) {

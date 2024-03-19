@@ -35,8 +35,9 @@ class CommentService {
     // execute all the queries at once
     // the order of the params with respect to the order of the return values matters
     const response: [ICommentDocument, IPostDocument, IUserDocument] = await Promise.all([comments, post, user]);
-    // send comments notification
 
+    // send comments notification
+    // if comments notifications are turned on, then they'll be saved and user will be alerted
     if(response[2].notifications.comments && userFrom !== userTo) {
       // instatiation notification model this way gives us all methods defined in the notification schema
       const notificationModel: INotificationDocument = new NotificationModel();

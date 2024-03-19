@@ -31,6 +31,14 @@ export const ADD_COMMENT_TO_DB_JOB = 'addUserCommentToDbJob';
 export const ADD_EMAIL_TO_JOB = 'addemailToJob';
 export const FORGOT_PASSWORD = 'forgotPassword';
 export const COMMENT_EMAIL = 'commentsEmail';
+export const FOLLOWERS_EMAIL = 'followersEmail';
+export const REACTIONS_EMAIL = 'reactionsEmail';
+export const DIRECT_MESSAGE_EMAIL = 'directMessageEmail';
+
+// NOTIFICATION JOB NAMES
+
+ export const UPDATE_NOTIFICATION = 'updateNotification';
+ export const DELETE_NOTIFICATION = 'deleteNotification';
 
 // EMAIL RECEIVER
 
