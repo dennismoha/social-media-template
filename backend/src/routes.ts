@@ -4,6 +4,7 @@ import { authRoutes as AuthRoutes } from '@src/features/auth/routes/auth-routes'
 import { currentUserRoutes } from '@src/features/auth/routes/currentRoutes';
 import { commentRoutes } from '@src/features/comments/routes/commentRoutes';
 import { followerRoutes } from '@src/features/follower/routes/followerRoute';
+import { notificationRoutes } from '@src/features/notifications/routes/notificationRoute';
 import { postRoutes } from '@src/features/post/routes/postRoutes';
 import { reactionRoutes } from '@src/features/reactions/routes/reaction-route';
 import { authMiddleware  } from '@src/shared/globals/helpers/auth-middlewares';
@@ -21,6 +22,7 @@ export default (app: Application) => {
     app.use(BASE_PATH, authMiddleware.verifyUser, reactionRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, commentRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, followerRoutes.routes());
+    app.use(BASE_PATH, authMiddleware.verifyUser, notificationRoutes.routes());
   };
   routes();
 };
