@@ -8,7 +8,7 @@ import { Helpers } from '@src/shared/globals/helpers/helpers';
 
 const log: Logger = config.createLogger('userCache');
 
-type UserItem = 'string' | ISocialLinks | INotificationSettings;
+type UserItem = string | ISocialLinks | INotificationSettings;
 
 export class UserCache  extends BaseCache{
   constructor(){
@@ -138,6 +138,8 @@ export class UserCache  extends BaseCache{
 
   // utility function to update values in cache
   public async updateSingleUserItemInCache(userId: string, prop: string, value: UserItem): Promise<IUserDocument | null> {
+    // prop above means the property in cache that we are updating
+    // value is the value for that data that we are updating it with
     try {
       if (!this.client.isOpen) {
         await this.client.connect();
