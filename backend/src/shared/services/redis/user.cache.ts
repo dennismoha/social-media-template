@@ -1,4 +1,4 @@
-import { IUserDocument } from '@src/features/user/interfaces/user.interface';
+import { INotificationSettings, ISocialLinks, IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { BaseCache } from '@src/shared/services/redis/base.cache';
 import Logger from 'bunyan';
 import { config } from '@src/config';
@@ -7,6 +7,8 @@ import { Helpers } from '@src/shared/globals/helpers/helpers';
 
 
 const log: Logger = config.createLogger('userCache');
+
+type UserItem = 'string' | ISocialLinks | INotificationSettings;
 
 export class UserCache  extends BaseCache{
   constructor(){
@@ -131,6 +133,25 @@ export class UserCache  extends BaseCache{
     } catch (error) {
       log.error(error);
       throw new ServerError('Redis server error. Try again');
+    }
+  }
+
+  // utility function to update values in cache
+  public async updateSingleUserItemInCache(userId: string, prop: string, value: UserItem): Promise<IUserDocument | null> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      // save the user data to cache
+      await this.client.HSET(`users:${userId}`, `${prop}`, JSON.stringify(value));
+
+      // fetch the saved in user data from cache and return it
+      const response: IUserDocument = (await this.getUserFromCache(userId)) as IUserDocument;
+      return response;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
     }
   }
 
