@@ -14,8 +14,17 @@ import { ICommentJob } from '@src/features/comments/interfaces/comment.interface
 import { IEmailJob } from '@src/features/user/interfaces/user.interface';
 import { IReactionJob } from '@src/features/reactions/interfaces/reaction.interface';
 import { IBlockedUserJobData, IFollowerJobData } from '@src/features/follower/interfaces/follower.interface';
+import { INotificationJobData } from '@src/features/notifications/interfaces/notification.interface';
 
-type IBaseJobData = IAuthJob | IPostJobData | IEmailJob | IReactionJob | ICommentJob | IFollowerJobData | IBlockedUserJobData;
+type IBaseJobData =
+  | IAuthJob
+  | IPostJobData
+  | IEmailJob
+  | IReactionJob
+  | ICommentJob
+  | IFollowerJobData
+  | IBlockedUserJobData
+  | INotificationJobData;
 
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter = new ExpressAdapter();
