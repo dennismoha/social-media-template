@@ -1,13 +1,17 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
+import { COMMENT_EMAIL } from '@src/constants';
 import { ICommentDocument, ICommentJob, ICommentNameList, IQueryComment } from '@src/features/comments/interfaces/comment.interface';
 import { CommentsModel } from '@src/features/comments/models/comment.schema';
-import { INotificationDocument } from '@src/features/notifications/interfaces/notification.interface';
+import { INotificationDocument, INotificationTemplate } from '@src/features/notifications/interfaces/notification.interface';
 import { NotificationModel } from '@src/features/notifications/models/notification.schema';
 import { IPostDocument } from '@src/features/post/interfaces/post.interface';
 import { PostModel } from '@src/features/post/models/post.schema';
 import { IUserDocument } from '@src/features/user/interfaces/user.interface';
+import { notificationTemplate } from '@src/shared/services/emails/templates/notifications/notification-template';
+import { emailQueue } from '@src/shared/services/queues/email.queue';
 import { UserCache } from '@src/shared/services/redis/user.cache';
+import { socketIONotificationObject } from '@src/shared/sockets/notification';
 import mongoose, { Query } from 'mongoose';
 
 const userCache: UserCache = new UserCache();
@@ -31,7 +35,6 @@ class CommentService {
     // execute all the queries at once
     // the order of the params with respect to the order of the return values matters
     const response: [ICommentDocument, IPostDocument, IUserDocument] = await Promise.all([comments, post, user]);
-
     // send comments notification
 
     if(response[2].notifications.comments && userFrom !== userTo) {
@@ -53,9 +56,16 @@ class CommentService {
         reaction: ''
       });
       // send to client with socketio
+      socketIONotificationObject.emit('insert notification', notifications,{userTo});
 
-
-      // send to email queue
+      // send to email queue template
+      const templateParams: INotificationTemplate = {
+        username: response[2].username!,
+        message: `${username} commented on your post.`,
+        header: 'Comment Notification'
+      };
+      const template: string = notificationTemplate.notificationMessageTemplate(templateParams);
+      emailQueue.AddEmailJob(COMMENT_EMAIL, { receiverEmail: response[2].email!, template, subject: 'Post notification' });
     }
   }
 

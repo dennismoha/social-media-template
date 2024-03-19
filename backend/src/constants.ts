@@ -30,6 +30,7 @@ export const ADD_COMMENT_TO_DB_JOB = 'addUserCommentToDbJob';
 
 export const ADD_EMAIL_TO_JOB = 'addemailToJob';
 export const FORGOT_PASSWORD = 'forgotPassword';
+export const COMMENT_EMAIL = 'commentsEmail';
 
 // EMAIL RECEIVER
 
