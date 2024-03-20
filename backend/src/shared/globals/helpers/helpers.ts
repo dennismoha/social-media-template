@@ -31,4 +31,11 @@ export class Helpers {
       return prop;
     }
   }
+
+  // checks if a string is base 64 encoded
+  static isDataURL(value: string): boolean {
+    const dataUrlRegex = /^\s*data:([a-z]+\/[a-z0-9-+.]+(;[a-z-]+=[a-z0-9-]+)?)?(;base64)?,([a-z0-9!$&',()*+;=\-._~:@\\/?%\s]*)\s*$/i;
+    // test returns a boolean if a certain string matches a certain pattern or not
+    return dataUrlRegex.test(value);
+  }
 }
