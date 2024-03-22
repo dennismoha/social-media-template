@@ -1,5 +1,5 @@
 import { config } from '@src/config';
-import { IChatList, IChatUsers, IMessageData } from '@src/features/chat/interfaces/chat.interface';
+import { IChatList, IChatUsers, IGetMessageFromCache, IMessageData } from '@src/features/chat/interfaces/chat.interface';
 import { ServerError } from '@src/shared/globals/helpers/error-handler';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
 import { BaseCache } from '@src/shared/services/redis/base.cache';
@@ -14,7 +14,7 @@ export class MessageCache extends BaseCache {
   }
   public async addChatListToCache(senderId: string, receiverId: string, conversationId: string): Promise<void> {
     try {
-      if(!this.client.isOpen) {
+      if (!this.client.isOpen) {
         await this.client.connect();
       }
 
@@ -26,7 +26,7 @@ export class MessageCache extends BaseCache {
       const userChatList = await this.client.LRANGE(`chatList:${senderId}`, 0, -1);
 
       // if none we create it for the user
-      if(userChatList.length === 0) {
+      if (userChatList.length === 0) {
         await this.client.RPUSH(`chatList:${senderId}`, JSON.stringify({ receiverId, conversationId }));
       } else {
         // since it exists, we now find the index of the receiver in the list of the senders list
@@ -46,7 +46,7 @@ export class MessageCache extends BaseCache {
 
   public async addChatMessageToCache(conversationId: string, value: IMessageData): Promise<void> {
     try {
-      if(!this.client.isOpen) {
+      if (!this.client.isOpen) {
         await this.client.connect();
       }
       await this.client.RPUSH(`messages:${conversationId}`, JSON.stringify(value));
@@ -60,7 +60,7 @@ export class MessageCache extends BaseCache {
 
   public async addChatUsersToCache(value: IChatUsers): Promise<IChatUsers[]> {
     try {
-      if(!this.client.isOpen) {
+      if (!this.client.isOpen) {
         await this.client.connect();
       }
       const users: IChatUsers[] = await this.getChatUsersList();
@@ -83,7 +83,7 @@ export class MessageCache extends BaseCache {
 
   public async removeChatUsersFromCache(value: IChatUsers): Promise<IChatUsers[]> {
     try {
-      if(!this.client.isOpen) {
+      if (!this.client.isOpen) {
         await this.client.connect();
       }
       const users: IChatUsers[] = await this.getChatUsersList();
@@ -103,10 +103,10 @@ export class MessageCache extends BaseCache {
   }
 
   // get the list of user conversations
-  public async getUserConversationList(key: string):Promise<IMessageData[]> {
+  public async getUserConversationList(key: string): Promise<IMessageData[]> {
     // key is the userId
     try {
-      if(!this.client.isOpen) {
+      if (!this.client.isOpen) {
         await this.client.connect();
       }
 
@@ -114,11 +114,11 @@ export class MessageCache extends BaseCache {
       const userChatList: string[] = await this.client.LRANGE(`chatList:${key}`, 0, -1);
       const conversationChatList: IMessageData[] = [];
 
-      for(const item of userChatList) {
+      for (const item of userChatList) {
         const chatItem: IChatList = Helpers.parseJson(item) as IChatList;
         // using the conversation id of the above, we can fetch the last message the user was sent
         // in the message list
-        const lastMessage: string = await this.client.LINDEX(`messages:${chatItem.conversationId}`, -1) as string;
+        const lastMessage: string = (await this.client.LINDEX(`messages:${chatItem.conversationId}`, -1)) as string;
         conversationChatList.push(Helpers.parseJson(lastMessage));
       }
       return conversationChatList;
@@ -126,7 +126,6 @@ export class MessageCache extends BaseCache {
       log.error(error);
       throw new ServerError('Server error. Try again.');
     }
-
   }
 
   /*
@@ -138,7 +137,7 @@ export class MessageCache extends BaseCache {
     */
   public async getChatMessagesFromCache(senderId: string, receiverId: string): Promise<IMessageData[]> {
     try {
-      if(!this.client.isOpen) {
+      if (!this.client.isOpen) {
         await this.client.connect();
       }
 
@@ -158,10 +157,10 @@ export class MessageCache extends BaseCache {
       const userChatList: string[] = await this.client.LRANGE(`chatList:${senderId}`, 0, -1);
       const receiver: string = find(userChatList, (listItem: string) => listItem.includes(receiverId)) as string;
       const parsedReceiver: IChatList = Helpers.parseJson(receiver) as IChatList;
-      if(parsedReceiver) {
+      if (parsedReceiver) {
         const userMessages: string[] = await this.client.LRANGE(`messages:${parsedReceiver.conversationId}`, 0, -1);
         const chatMessages: IMessageData[] = [];
-        for(const item of userMessages) {
+        for (const item of userMessages) {
           const chatItem = Helpers.parseJson(item) as IMessageData;
           chatMessages.push(chatItem);
         }
@@ -169,6 +168,49 @@ export class MessageCache extends BaseCache {
       } else {
         return [];
       }
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
+  /*
+      DELETE MESSAGES
+        A user can either delete a single message for himself or for everyone
+
+  */
+
+  public async markMessageAsDeleted(senderId: string, receiverId: string, messageId: string, type: string): Promise<IMessageData> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const { index, message, receiver } = await this.getMessage(senderId, receiverId, messageId);
+      const chatItem = Helpers.parseJson(message) as IMessageData;
+      if(type === 'deleteForMe') {
+        chatItem.deleteForMe = true;
+      } else {
+        chatItem.deleteForMe = true;
+        chatItem.deleteForEveryone = true;
+      }
+
+      // to update an item inside the list we use LSET
+      await this.client.LSET(`messages:${receiver.conversationId}`, index, JSON.stringify(chatItem));
+
+      /*
+        GET THE LAST ITEM UPDATED AND RETURN IT TO THE CLIENT.
+          1) we can either return the chatItem back to the client
+          2) we can refetch the last item updated from cache and return it
+        we go with option 2
+
+      */
+
+      // LINDEX is used to get an element from the list by it's index
+
+      const lastMessage: string = await this.client.LINDEX(`messages:${receiver.conversationId}`, index) as string;
+      return Helpers.parseJson(lastMessage) as IMessageData;
+
 
     } catch (error) {
       log.error(error);
@@ -176,15 +218,30 @@ export class MessageCache extends BaseCache {
     }
   }
 
-
   private async getChatUsersList(): Promise<IChatUsers[]> {
     const chatUsersList: IChatUsers[] = [];
     const chatUsers = await this.client.LRANGE('chatUsers', 0, -1);
-    for(const item of chatUsers) {
+    for (const item of chatUsers) {
       const chatUser: IChatUsers = Helpers.parseJson(item) as IChatUsers;
       chatUsersList.push(chatUser);
     }
     return chatUsersList;
   }
 
+  // utility function to get message from cache
+
+  private async getMessage(senderId: string, receiverId: string, messageId: string): Promise<IGetMessageFromCache> {
+    //
+    const userChatList: string[] = await this.client.LRANGE(`chatList:${senderId}`, 0, -1);
+    const receiver: string = find(userChatList, (listItem: string) => listItem.includes(receiverId)) as string;
+    const parsedReceiver: IChatList = Helpers.parseJson(receiver) as IChatList;
+    const messages: string[] = await this.client.LRANGE(`messages:${parsedReceiver.conversationId}`, 0, -1);
+
+    // find a particular message with that specific messageId
+    const message: string = find(messages, (listItem: string) => listItem.includes(messageId)) as string;
+    const index: number = findIndex(messages, (listItem: string) => listItem.includes(messageId));
+
+    // the index here will be used to update an item inside the list
+    return { index, message, receiver: parsedReceiver };
+  }
 }
