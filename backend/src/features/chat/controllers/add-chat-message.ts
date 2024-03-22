@@ -14,8 +14,9 @@ import { socketIOChatObject } from '@src/shared/sockets/chat';
 import { INotificationTemplate } from '@src/features/notifications/interfaces/notification.interface';
 import { notificationTemplate } from '@src/shared/services/emails/templates/notifications/notification-template';
 import { emailQueue } from '@src/shared/services/queues/email.queue';
-import { DIRECT_MESSAGE_EMAIL } from '@src/constants';
+import { ADD_CHAT_MESSAGE_TO_DB_JOB, DIRECT_MESSAGE_EMAIL } from '@src/constants';
 import { MessageCache } from '@src/shared/services/redis/message.cache';
+import { chatQueue } from '@src/shared/services/queues/chat.queue';
 
 const userCache: UserCache = new UserCache();
 const messageCache: MessageCache = new MessageCache();
@@ -110,6 +111,7 @@ export class Add {
     await messageCache.addChatMessageToCache(`${conversationObjectId}`, messageData);
 
     // add message to chat queue
+    chatQueue.addChatJob(ADD_CHAT_MESSAGE_TO_DB_JOB,messageData);
 
     res.status(HTTP_STATUS.OK).json({ message: 'message added', conversationId: conversationObjectId });
   }
