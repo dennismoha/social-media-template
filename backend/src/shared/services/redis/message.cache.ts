@@ -4,7 +4,7 @@ import { ServerError } from '@src/shared/globals/helpers/error-handler';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
 import { BaseCache } from '@src/shared/services/redis/base.cache';
 import Logger from 'bunyan';
-import { findIndex } from 'lodash';
+import { find, findIndex } from 'lodash';
 
 const log: Logger = config.createLogger('messageCache');
 
@@ -127,6 +127,53 @@ export class MessageCache extends BaseCache {
       throw new ServerError('Server error. Try again.');
     }
 
+  }
+
+  /*
+    GET CHAT MESSAGES OF A CERTAIN USER FROM CACHE
+        we can use
+          1) The conversationId to fetch the messages
+          2) Both the senderId and the receiverID.
+        Below we apply the second option
+    */
+  public async getChatMessagesFromCache(senderId: string, receiverId: string): Promise<IMessageData[]> {
+    try {
+      if(!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      // we use both the receiver id and the sender id to retrieve chats
+
+      /* PROCESS:
+           - In the chatlist list, we fetch all userChatlist keys which are equal to the senderID using LRANGE
+           - The data returned above contains a receiverId and a conversationID
+           - We  use `find` from lodash to filter only userChatlists which include the receiverID
+           - We then parse the returned data as json.
+           - Then we traverse the messages list returning only data that has got the conversationId in the array as
+           - the chatMessages array.
+           - Then we push each chatItem in the chatMessages array and return
+
+      */
+
+      const userChatList: string[] = await this.client.LRANGE(`chatList:${senderId}`, 0, -1);
+      const receiver: string = find(userChatList, (listItem: string) => listItem.includes(receiverId)) as string;
+      const parsedReceiver: IChatList = Helpers.parseJson(receiver) as IChatList;
+      if(parsedReceiver) {
+        const userMessages: string[] = await this.client.LRANGE(`messages:${parsedReceiver.conversationId}`, 0, -1);
+        const chatMessages: IMessageData[] = [];
+        for(const item of userMessages) {
+          const chatItem = Helpers.parseJson(item) as IMessageData;
+          chatMessages.push(chatItem);
+        }
+        return chatMessages;
+      } else {
+        return [];
+      }
+
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
   }
 
 
