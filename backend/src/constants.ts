@@ -45,6 +45,9 @@ export const UPDATE_BACKGROUND_IMAGE_TO_DB_JOB = 'updateBGImageInDB';
 export const ADD_IMAGE_TO_DB_JOB = 'addImageToDB';
 export const REMOVE_IMAGE_FROM_DB_JOB = 'removeImageFromDB';
 
+// CHAT JOB NAMES
+export const ADD_CHAT_MESSAGE_TO_DB_JOB = 'addChatMessageToDB';
+
 // EMAIL RECEIVER
 
 export const RECEIVER_EMAIL = 'hillary.fritsch23@ethereal.email';

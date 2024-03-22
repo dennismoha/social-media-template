@@ -1,5 +1,5 @@
 import { config } from '@src/config';
-import { IChatUsers, IMessageData } from '@src/features/chat/interfaces/chat.interface';
+import { IChatList, IChatUsers, IMessageData } from '@src/features/chat/interfaces/chat.interface';
 import { ServerError } from '@src/shared/globals/helpers/error-handler';
 import { Helpers } from '@src/shared/globals/helpers/helpers';
 import { BaseCache } from '@src/shared/services/redis/base.cache';
@@ -100,6 +100,33 @@ export class MessageCache extends BaseCache {
       log.error(error);
       throw new ServerError('Server error. Try again.');
     }
+  }
+
+  // get the list of user conversations
+  public async getUserConversationList(key: string):Promise<IMessageData[]> {
+    // key is the userId
+    try {
+      if(!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      // we get data for this specific user from the chatlist
+      const userChatList: string[] = await this.client.LRANGE(`chatList:${key}`, 0, -1);
+      const conversationChatList: IMessageData[] = [];
+
+      for(const item of userChatList) {
+        const chatItem: IChatList = Helpers.parseJson(item) as IChatList;
+        // using the conversation id of the above, we can fetch the last message the user was sent
+        // in the message list
+        const lastMessage: string = await this.client.LINDEX(`messages:${chatItem.conversationId}`, -1) as string;
+        conversationChatList.push(Helpers.parseJson(lastMessage));
+      }
+      return conversationChatList;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+
   }
 
 
