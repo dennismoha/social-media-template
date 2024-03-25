@@ -104,8 +104,10 @@ class ChatService {
 
   public async updateMessageReaction(messageId: ObjectId, senderName: string, reaction: string, type: 'add' | 'remove'): Promise<void> {
     if (type === 'add') {
+      // we use the push operator since we are pushing to the reaction array
       await MessageModel.updateOne({ _id: messageId }, { $push: { reaction: { senderName, type: reaction } } }).exec();
     } else {
+        // we use the pull operator since we are pulling from the reaction array the document with the sender name
       await MessageModel.updateOne({ _id: messageId }, { $pull: { reaction: { senderName } } }).exec();
     }
   }
