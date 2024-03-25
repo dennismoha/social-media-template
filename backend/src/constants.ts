@@ -48,6 +48,8 @@ export const REMOVE_IMAGE_FROM_DB_JOB = 'removeImageFromDB';
 // CHAT JOB NAMES
 export const ADD_CHAT_MESSAGE_TO_DB_JOB = 'addChatMessageToDB';
 export const MARK_MESSAGEAS_DELETED_IN_DB_TO_DB_JOB = 'markMessageAsDeletedInDB';
+export const MARK_MESSAGEAS_AS_READ_IN_DB_JOB = 'markMessagesAsReadInDB';
+export const UPDATE_MESSAGE_REACTION = 'updateMessageReaction';
 
 // EMAIL RECEIVER
 
