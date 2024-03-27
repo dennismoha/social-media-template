@@ -38,4 +38,13 @@ export class Helpers {
     // test returns a boolean if a certain string matches a certain pattern or not
     return dataUrlRegex.test(value);
   }
+
+  // randomly shuffles a list and randomly selects an item
+  static shuffle(list: string[]): string[] {
+    for (let i = list.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [list[i], list[j]] = [list[j], list[i]];
+    }
+    return list;
+  }
 }
