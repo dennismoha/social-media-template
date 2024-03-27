@@ -10,6 +10,7 @@ import { notificationTemplate } from '@src/shared/services/emails/templates/noti
 import { emailQueue } from '@src/shared/services/queues/email.queue';
 import { UserCache } from '@src/shared/services/redis/user.cache';
 import { socketIONotificationObject } from '@src/shared/sockets/notification';
+import { map } from 'lodash';
 import { ObjectId, BulkWriteResult } from 'mongodb';
 import mongoose, { Query } from 'mongoose';
 
@@ -184,6 +185,21 @@ class FollowerService {
       }
     ]);
     return follower;
+  }
+
+  // Get id of all other users who are following this user
+  // EG : we can find all ids of users following the logged in user
+  public async getFolloweesIds(userId: string): Promise<string[]> {
+    const followee = await FollowerModel.aggregate([
+      { $match: { followerId: new mongoose.Types.ObjectId(userId)}},
+      {
+        $project: {
+          followeeId: 1,
+          _id: 0
+        }
+      }
+    ]);
+    return map(followee, (result) => result.followeeId.toString());
   }
 }
 

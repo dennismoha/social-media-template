@@ -9,6 +9,7 @@ import { imageRoutes } from '@src/features/images/routes/imageRoute';
 import { notificationRoutes } from '@src/features/notifications/routes/notificationRoute';
 import { postRoutes } from '@src/features/post/routes/postRoutes';
 import { reactionRoutes } from '@src/features/reactions/routes/reaction-route';
+import { userRoutes } from '@src/features/user/routes/userRoutes';
 import { authMiddleware  } from '@src/shared/globals/helpers/auth-middlewares';
 import { serverAdapter } from '@src/shared/services/queues/base.queue';
 import { Application } from 'express';
@@ -27,6 +28,7 @@ export default (app: Application) => {
     app.use(BASE_PATH, authMiddleware.verifyUser, notificationRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, imageRoutes.routes());
     app.use(BASE_PATH, authMiddleware.verifyUser, chatRoutes.routes());
+    app.use(BASE_PATH, authMiddleware.verifyUser, userRoutes.routes());
   };
   routes();
 };
