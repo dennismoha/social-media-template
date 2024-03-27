@@ -232,6 +232,8 @@ export class UserCache  extends BaseCache{
       const excludedUsernameIndex: number = findIndex(replies, ['username', excludedUsername]);
       //  then exclude username of the logged in user if maybe
       replies.splice(excludedUsernameIndex, 1);
+
+
       for(const reply of replies) {
         reply.createdAt = new Date(Helpers.parseJson(`${reply.createdAt}`));
         reply.postsCount = Helpers.parseJson(`${reply.postsCount}`);
