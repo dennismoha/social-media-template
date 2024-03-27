@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { IUserDocument } from '@src/features/user/interfaces/user.interface';
+import { ISearchUser, IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserModel } from '@src/features/user/models/user.schema';
 import { IAuthDocument } from '@src/interfaces/auth.interface';
 import Logger from 'bunyan';
@@ -7,6 +7,7 @@ import Logger from 'bunyan';
 import { config } from '@src/config';
 import { indexOf } from 'lodash';
 import { followerService } from '@src/shared/services/db/follower.service';
+import { AuthModel } from '@src/features/auth/models/auth.schema';
 
 const log: Logger = config.createLogger('singup');
 
@@ -60,7 +61,8 @@ class UserService {
       { $lookup: { from: 'Auth', localField: 'authId', foreignField: '_id', as: 'authId' } },
       { $unwind: '$authId' },
       { $sample: { size: 10 } }, // sample operator help return a list of 10 users randomly selected from db. it takes size parameter
-      {// these will come from Auth
+      {
+        // these will come from Auth
         $addFields: {
           username: '$authId.username',
           email: '$authId.email',
@@ -77,7 +79,7 @@ class UserService {
       }
     ]);
     const followers: string[] = await followerService.getFolloweesIds(`${userId}`);
-    for(const user of users) {
+    for (const user of users) {
       const followerIndex = indexOf(followers, user._id.toString());
       if (followerIndex < 0) {
         randomUsers.push(user);
@@ -90,6 +92,27 @@ class UserService {
   public async getTotalUsersInDB(): Promise<number> {
     const totalCount: number = await UserModel.find({}).countDocuments();
     return totalCount;
+  }
+
+  // search for user.
+  // used during chat to search for a user in the users to chat with
+  public async searchUsers(regex: RegExp): Promise<ISearchUser[]> {
+
+    const users = await AuthModel.aggregate([
+      { $match: { username: regex } },
+      { $lookup: { from: 'User', localField: '_id', foreignField: 'authId', as: 'user' } },
+      { $unwind: '$user' },
+      {
+        $project: {
+          _id: '$user._id',
+          username: 1,
+          email: 1,
+          avatarColor: 1,
+          profilePicture: 1
+        }
+      }
+    ]);
+    return users;
   }
 
   private aggregateProject() {
