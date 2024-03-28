@@ -1,6 +1,8 @@
 import { Update } from '@src/features/user/controller/change-password';
 import { Get } from '@src/features/user/controller/get-profile';
 import { Search } from '@src/features/user/controller/search-user';
+import { Edit } from '@src/features/user/controller/update-basic-info';
+import { UpdateSettings } from '@src/features/user/controller/update-settings';
 import { authMiddleware } from '@src/shared/globals/helpers/auth-middlewares';
 import express, { Router } from 'express';
 
@@ -21,9 +23,9 @@ class UserRoutes {
     this.router.get('/user/profile/search/:query', authMiddleware.checkAuthentication, Search.prototype.user);
 
     this.router.put('/user/profile/change-password', authMiddleware.checkAuthentication, Update.prototype.password);
-    // this.router.put('/user/profile/basic-info', authMiddleware.checkAuthentication, Edit.prototype.info);
-    // this.router.put('/user/profile/social-links', authMiddleware.checkAuthentication, Edit.prototype.social);
-    // this.router.put('/user/profile/settings', authMiddleware.checkAuthentication, UpdateSettings.prototype.notification);
+    this.router.put('/user/profile/basic-info', authMiddleware.checkAuthentication, Edit.prototype.info);
+    this.router.put('/user/profile/social-links', authMiddleware.checkAuthentication, Edit.prototype.social);
+    this.router.put('/user/profile/settings', authMiddleware.checkAuthentication, UpdateSettings.prototype.notification);
 
     return this.router;
   }

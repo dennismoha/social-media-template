@@ -6,7 +6,6 @@ export const BASE_PATH = '/api/v1';
 
 // JOB NAMES
 export const ADD_AUTH_USER_TO_JOB = 'addAuthUserToJob';
-export const ADD_USER_TO_JOB = 'addUserToJob';
 export const ADD_USER_POST_TO_JOB = 'addUserPostToJob';
 export const DELETE_USER_POST_TO_JOB = 'deleteUserPostToJob';
 export const EDIT_USER_POST_TO_JOB = 'editUserPostToJob';
@@ -53,6 +52,12 @@ export const MARK_MESSAGEAS_DELETED_IN_DB_TO_DB_JOB = 'markMessageAsDeletedInDB'
 export const MARK_MESSAGEAS_AS_READ_IN_DB_JOB = 'markMessagesAsReadInDB';
 export const UPDATE_MESSAGE_REACTION = 'updateMessageReaction';
 
+
+// USER JOB NAMES
+export const ADD_USER_TO_JOB = 'addUserToJob';
+export const UPDATE_BASIC_USER_INFO_TO_JOB = 'updateBasicUserInfoToJob';
+export const UPDATE_USER_SOCIAL_INFO_TO_JOB = 'updateUserSocialInfoToJob';
+export const UPDATE_USER_NOTIFICATION_SETTINGS = 'updateUserNotificationSettingsToJob';
 
 
 // EMAIL RECEIVER

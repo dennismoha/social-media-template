@@ -28,6 +28,11 @@ class Authservice {
     );
   }
 
+  // update user password once user is logged in
+  public async updatePassword(username: string, hashedPassword: string): Promise<void> {
+    await AuthModel.updateOne({ username }, { $set: { password: hashedPassword } }).exec();
+  }
+
   public async getUserByNameOrEmail(username: string, email: string): Promise<IAuthDocument> {
     const query = {
       $or: [{ username: Helpers.firstLetterToUpperCase(username) }, { email: Helpers.lowerCase(email) }]
