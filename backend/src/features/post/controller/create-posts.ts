@@ -118,4 +118,7 @@ export class CreatePost {
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'posts created with image successfull ', createdPost });
   }
+
+  // post with video
+
 }

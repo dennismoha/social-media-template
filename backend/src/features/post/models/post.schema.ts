@@ -11,6 +11,8 @@ const postSchema: Schema = new Schema({
   post: { type: String, default: '' },
   bgColor: { type: String, default: '' },
   imgVersion: { type: String, default: '' },
+  videoVersion: { type: String, default: '' },
+  videoId: { type: String, default: '' },
   imgId: { type: String, default: '' },
   feelings: { type: String, default: '' },
   gifUrl: { type: String, default: '' },
