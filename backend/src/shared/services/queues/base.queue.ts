@@ -11,7 +11,7 @@ import { IAuthJob } from '@src/interfaces/auth.interface';
 import { IPostJobData } from '@src/features/post/interfaces/post.interface';
 import { ICommentJob } from '@src/features/comments/interfaces/comment.interface';
 
-import { IEmailJob } from '@src/features/user/interfaces/user.interface';
+import { IEmailJob, IUserJob } from '@src/features/user/interfaces/user.interface';
 import { IReactionJob } from '@src/features/reactions/interfaces/reaction.interface';
 import { IBlockedUserJobData, IFollowerJobData } from '@src/features/follower/interfaces/follower.interface';
 import { INotificationJobData } from '@src/features/notifications/interfaces/notification.interface';
@@ -29,7 +29,8 @@ type IBaseJobData =
   | INotificationJobData
   | IFileImageJobData
   | IChatJobData
-  | IMessageData;
+  | IMessageData
+  | IUserJob;
 
 let bullAdapters: BullAdapter[] = [];
 export let serverAdapter = new ExpressAdapter();
