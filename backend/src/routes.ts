@@ -22,6 +22,7 @@ export default (app: Application) => {
     app.use('', healthRoutes.health()); // checks the health of the application
     app.use('', healthRoutes.env());
     app.use('', healthRoutes.instance());
+    app.use('', healthRoutes.fiboRoutes());
     app.use(BASE_PATH, AuthRoutes.routes());
     app.use(BASE_PATH, AuthRoutes.signoutRoute());
     app.use(BASE_PATH, authMiddleware.verifyUser, currentUserRoutes.routes());
