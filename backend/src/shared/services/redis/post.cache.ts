@@ -34,6 +34,8 @@ export class PostCache extends BaseCache {
       commentsCount,
       imgVersion,
       imgId,
+      videoId,
+      videoVersion,
       reactions,
       createdAt
     } = createdPost;
@@ -56,6 +58,8 @@ export class PostCache extends BaseCache {
       reactions: JSON.stringify(reactions),
       imgVersion: `${imgVersion}`,
       imgId: `${imgId}`,
+      videoId: `${videoId}`,
+      videoVersion: `${videoVersion}`,
       createdAt: `${createdAt}`
     };
 
@@ -246,6 +250,37 @@ export class PostCache extends BaseCache {
     }
   }
 
+
+  // Retrieve posts With videos from cache
+  // This is done using pagination. We cannot retrieve all posts at once . that's expensive
+  public async getPostsWithVideosFromCache(key: string, start: number, end: number): Promise<IPostDocument[]> {
+    try {
+      if (!this.client.isOpen) {
+        await this.client.connect();
+      }
+
+      const reply: string[] = await this.client.ZRANGE(key, start, end, { REV: true });
+      const multi: ReturnType<typeof this.client.multi> = this.client.multi();
+      for (const value of reply) {
+        multi.HGETALL(`posts:${value}`);
+      }
+      const replies: PostCacheMultiType = (await multi.exec()) as PostCacheMultiType;
+      const postWithVideos: IPostDocument[] = [];
+      for (const post of replies as IPostDocument[]) {
+        if (post.videoId && post.videoVersion) {
+          post.commentsCount = Helpers.parseJson(`${post.commentsCount}`) as number;
+          post.reactions = Helpers.parseJson(`${post.reactions}`) as IReactions;
+          post.createdAt = new Date(Helpers.parseJson(`${post.createdAt}`)) as Date;
+          postWithVideos.push(post);
+        }
+      }
+      return postWithVideos;
+    } catch (error) {
+      log.error(error);
+      throw new ServerError('Server error. Try again.');
+    }
+  }
+
   // Retrieve posts of a particular user  from cache
   // This is done using pagination. We cannot retrieve all posts at once . that's expensive
   public async getUserPostsFromCache(key: string, uid: number): Promise<IPostDocument[]> {
@@ -307,7 +342,7 @@ export class PostCache extends BaseCache {
         await this.client.connect();
       }
 
-      const { post, bgColor, feelings, privacy, gifUrl, imgVersion, imgId, profilePicture } = updatedPost;
+      const { post, bgColor, feelings, privacy, gifUrl, imgVersion, imgId, profilePicture, videoId, videoVersion } = updatedPost;
       // const firstList: string[] = [
       //   'post',
       //   `${post}`,
@@ -330,7 +365,9 @@ export class PostCache extends BaseCache {
         gifUrl: `${gifUrl}`,
         profilePicture: `${profilePicture}`,
         imgVersion: `${imgVersion}`,
-        imgId: `${imgId}`
+        imgId: `${imgId}`,
+        videoId: `${videoId}`,
+        videoVersion: `${videoVersion}`
       };
 
       // update the post in cache with the new data
