@@ -9,7 +9,7 @@ class Config {
   public DATABASE_URL: string | undefined;
   public DATABASE_USERNAME: string | undefined;
   public DATABASE_PASSWORD: string | undefined;
-  public JWT_TOKEN: string ;
+  public JWT_TOKEN: string;
   public NODE_ENV: string | undefined;
   public SECRET_COOKIE_KEY_ONE: string | undefined;
   public SECRET_COOKIE_KEY_TWO: string | undefined;
@@ -22,8 +22,7 @@ class Config {
   public SENDER_EMAIL_PASSWORD: string | undefined;
   public SENDGRID_API_KEY: string | undefined;
   public SENDGRID_SENDER: string | undefined;
-
-
+  public EC2_URL: string | undefined;
 
   private readonly DEFAULT_DATABASE_URL = MONGO_DATABASE_URL;
 
@@ -37,15 +36,14 @@ class Config {
     this.SECRET_COOKIE_KEY_TWO = process.env.SECRETE_COOKIE_KEY_TWO || '';
     this.CLIENT_URL = process.env.CLIENT_URL || '';
     this.REDIS_HOST = process.env.REDIS_HOST || '';
-    this.CLOUD_NAME= process.env.CLOUD_NAME;
-    this.CLOUD_API_KEY=process.env.CLOUD_API_KEY;
-    this.CLOUD_API_SECRET= process.env.CLOUD_API_SECRET;
-    this.SENDER_EMAIL=process.env.SENDER_EMAIL;
-    this.SENDER_EMAIL_PASSWORD=process.env.SENDER_EMAIL_PASSWORD;
-    this.SENDGRID_API_KEY=process.env.SENDGRID_API_KEY;
-    this.SENDGRID_SENDER=process.env.SENDGRID_SENDER;
-
-
+    this.CLOUD_NAME = process.env.CLOUD_NAME;
+    this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
+    this.CLOUD_API_SECRET = process.env.CLOUD_API_SECRET;
+    this.SENDER_EMAIL = process.env.SENDER_EMAIL;
+    this.SENDER_EMAIL_PASSWORD = process.env.SENDER_EMAIL_PASSWORD;
+    this.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+    this.SENDGRID_SENDER = process.env.SENDGRID_SENDER;
+    this.EC2_URL = process.env.EC2_URL;
   }
 
   public createLogger(name: string): bunyan {
@@ -67,8 +65,6 @@ class Config {
       api_secret: this.CLOUD_API_SECRET
     });
   }
-
-
 }
 
 export const config: Config = new Config();
