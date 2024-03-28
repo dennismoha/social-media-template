@@ -7,7 +7,7 @@ import { BadRequestError } from '@src/shared/globals/helpers/error-handler';
 import { joiValidation } from '@src/shared/globals/decorators/joi-validation-decorators';
 import { authservice } from '@src/shared/services/db/auth.service';
 import { IAuthDocument } from '@src/interfaces/auth.interface';
-import { userService } from '@src/shared/services/db/user.service';
+// import { userService } from '@src/shared/services/db/user.service';
 import { IResetPasswordParams } from '@src/features/user/interfaces/user.interface';
 import { resetPasswordTemplate } from '@src/shared/services/emails/templates/reset-password/reset-password-template';
 import { emailQueue } from '@src/shared/services/queues/email.queue';
@@ -35,7 +35,7 @@ export class Update {
     const hashedPassword: string = await existingUser.hashPassword(newPassword);
 
     // update the password
-    await userService.updatePassword(`${req.currentUser!.userId}`,hashedPassword);
+    await  authservice.updatePassword(`${req.currentUser!.username}`,hashedPassword);
 
     const templateParams: IResetPasswordParams = {
       username: existingUser.username!,

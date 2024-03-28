@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import { ISearchUser, IUserDocument } from '@src/features/user/interfaces/user.interface';
+import { IBasicInfo, INotificationSettings, ISearchUser, ISocialLinks, IUserDocument } from '@src/features/user/interfaces/user.interface';
 import { UserModel } from '@src/features/user/models/user.schema';
 import { IAuthDocument } from '@src/interfaces/auth.interface';
 import Logger from 'bunyan';
@@ -21,9 +21,38 @@ class UserService {
   }
 
   // update user password once user is logged in
-  public async updatePassword(userId: string, hashedPassword: string): Promise<void>{
-    await UserModel.updateOne({_id: userId}, {$set: {pasword: hashedPassword}}).exec();
+  // public async updatePassword(userId: string, hashedPassword: string): Promise<void>{
+  //   await UserModel.updateOne({_id: userId}, {$set: {pasword: hashedPassword}}).exec();
+  // }
+
+  // update user password once user is logged in
+  public async updateUserInfo(userId: string, info: IBasicInfo): Promise<void> {
+    await UserModel.updateOne(
+      { _id: userId },
+      {
+        $set: {
+          work: info['work'],
+          school: info['school'],
+          quote: info['quote'],
+          location: info['location']
+        }
+      }
+    ).exec();
   }
+
+  public async updateSocialLinks(userId: string, links: ISocialLinks): Promise<void> {
+    await UserModel.updateOne(
+      { _id: userId },
+      {
+        $set: { social: links }
+      }
+    ).exec();
+  }
+
+  public async updateNotificationSettings(userId: string, settings: INotificationSettings): Promise<void> {
+    await UserModel.updateOne({ _id: userId }, { $set: { notifications: settings }}).exec();
+  }
+
 
   public async getUserById(userId: string): Promise<IUserDocument> {
     const users: IUserDocument[] = await UserModel.aggregate([
