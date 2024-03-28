@@ -9,6 +9,7 @@ import { imageRoutes } from '@src/features/images/routes/imageRoute';
 import { notificationRoutes } from '@src/features/notifications/routes/notificationRoute';
 import { postRoutes } from '@src/features/post/routes/postRoutes';
 import { reactionRoutes } from '@src/features/reactions/routes/reaction-route';
+import { healthRoutes } from '@src/features/user/routes/healthRoutes';
 import { userRoutes } from '@src/features/user/routes/userRoutes';
 import { authMiddleware  } from '@src/shared/globals/helpers/auth-middlewares';
 import { serverAdapter } from '@src/shared/services/queues/base.queue';
@@ -18,6 +19,9 @@ import { Application } from 'express';
 export default (app: Application) => {
   const routes = () => {
     app.use('/queues', serverAdapter.getRouter());
+    app.use('', healthRoutes.health()); // checks the health of the application
+    app.use('', healthRoutes.env());
+    app.use('', healthRoutes.instance());
     app.use(BASE_PATH, AuthRoutes.routes());
     app.use(BASE_PATH, AuthRoutes.signoutRoute());
     app.use(BASE_PATH, authMiddleware.verifyUser, currentUserRoutes.routes());
