@@ -6,6 +6,7 @@ import HTTP_STATUS from 'http-status-codes';
 import { config } from '@src/config';
 // import { config } from '@root/config';
 
+
 /*
   These routes are used to check the health of the server.
   each will return different status code if called
@@ -65,9 +66,11 @@ class HealthRoutes {
       //   } and process id ${process.pid} on ${moment().format('LL')}`
       // );
 
-      res.status(HTTP_STATUS.OK).send(
-        `Fibonacci series of ${num} is ${result} and it took ${end - start}ms with process id ${process.pid} on ${moment().format('LL')}`
-      );
+      res
+        .status(HTTP_STATUS.OK)
+        .send(
+          `Fibonacci series of ${num} is ${result} and it took ${end - start}ms with process id ${process.pid} on ${moment().format('LL')}`
+        );
     });
 
     return this.router;
@@ -86,6 +89,8 @@ class HealthRoutes {
       return this.fibo(data - 2) + this.fibo(data - 1);
     }
   }
+
+
 }
 
 export const healthRoutes: HealthRoutes = new HealthRoutes();

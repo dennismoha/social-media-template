@@ -62,7 +62,8 @@ async function seedUserData(count: number): Promise<void> {
   let i = 0;
   try {
     for (i = 0; i < count; i++) {
-      const username: string = faker.person.firstName().slice(0, 8);
+      const username: string = faker.person.firstName();
+      console.log('username is ', username);
       const color = avatarColor();
       const avatar = generateAvatar(username.charAt(0).toUpperCase(), color);
 
@@ -73,10 +74,18 @@ async function seedUserData(count: number): Promise<void> {
         avatarColor: color,
         avatarImage: avatar
       };
+
+
       console.log(`***ADDING USER TO DATABASE*** - ${i + 1} of ${count} - ${username}`);
-      await axios.post(`${process.env.API_URL}/signup`, body);
+      await axios.post(`${process.env.API_URL}/signup`, body, {
+        headers:{
+          'Content-Type': 'application/json',
+          'Cookie': 'session=eyJqd3QiOiJleUpoYkdjaU9pSklVekkxTmlJc0luUjVjQ0k2SWtwWFZDSjkuZXlKMWMyVnlTV1FpT2lJMk5XWXlaVFUyTnpFNE5tRTNNRGMzWkdFM1pEQmxOakFpTENKMVNXUWlPaUl4TkRZMU56UTJPRGsxT0RNaUxDSmxiV0ZwYkNJNkluTmhiWEJzWlRBeVFHMWhhV3d1WTI5dElpd2lkWE5sY201aGJXVWlPaUpUWVcxd2JHVXdNaUlzSW1GMllYUmhja052Ykc5eUlqb2ljbVZrSWl3aWFXRjBJam94TnpFek16TXpOek01ZlEuYmQ0d245Ri1nSkRodXJXTWVIaUgtX0tKUDE1QVFQdnduTW1NYnhjNExEYyJ9; session.sig=hEYBXlOjL2aOGWVbMphl-SnXlNk'
+        }
+      });
     }
   } catch (error: any) {
+    console.log('error is ', error);
     console.log(error?.response?.data);
   }
 }

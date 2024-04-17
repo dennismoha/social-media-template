@@ -10,7 +10,8 @@
     "prettier:check": "prettier --check \"./src/**/*.{ts,json}\" ",
     "prettier:fix": "prettier --write \"./src/**/*.{ts,json}\" ",
     "test": "jest --coverage=true -w=1  --forceExit --detectOpenHandles --watchAll=false",
-    "build": "tspc -p ."
+    "build": "tspc -p .",
+    "seeds:dev":"npx ts-node src/seed.ts"
   },
   "author": "",
   "license": "ISC",
