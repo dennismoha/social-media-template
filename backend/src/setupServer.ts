@@ -89,6 +89,9 @@ export class ChattyServer {
 
   // creating http server
   private async startServer(app: Application): Promise<void> {
+    if(!config.JWT_TOKEN) {
+      throw new Error('token must be provided')
+    }
     try {
       const httpServer: http.Server = new http.Server(app);
       const socketIO: Server = await this.createSocketIO(httpServer);
@@ -120,6 +123,8 @@ export class ChattyServer {
 
   // calling the listen method
   private startHttpServer(httpServer: http.Server): void {
+    log.info(`worker with process id of ${process.pid} has started`);
+    log.info(`server has started  with process id of ${process.pid} has started`);
     httpServer.listen(SERVER_PORT, () => {
       log.info('server running ', SERVER_PORT);
     });
