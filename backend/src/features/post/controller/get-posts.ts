@@ -68,4 +68,31 @@ export class GetPosts {
 
     res.status(HTTP_STATUS.OK).json({ message: 'All posts with images', posts });
   }
+
+
+  // fetch posts with videos from db and cache
+  public async fetchPostsWithVideos(req: Request, res: Response): Promise<void> {
+    const { page } = req.params;
+
+    // the following is used for fetching data from mongo db. for pagination purposes
+
+    const skip: number = (parseInt(page) - 1) * PAGE_SIZE;
+    const limit: number = PAGE_SIZE * parseInt(page);
+
+    // the following is used for fetching data from redis. for pagination purposes
+
+    const newSkip: number = skip === 0 ? skip : skip + 1;
+
+    let posts: IPostDocument[] = [];
+
+    // the following query is used to fetch posts with images from cache
+    // NB: posts parameter here is the set name on redis
+    const cachedPosts: IPostDocument[] = await postCache.getPostsWithVideosFromCache('post', newSkip, limit);
+
+    // since we've not implemented a method for getting the total number of posts with images then we do this:
+
+    posts = cachedPosts.length ? cachedPosts : await postService.getPosts({ videoId: '$ne' }, skip, limit, { createdAt: -1 });
+
+    res.status(HTTP_STATUS.OK).json({ message: 'All posts with Videos', posts });
+  }
 }
