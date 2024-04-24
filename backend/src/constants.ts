@@ -1,9 +1,4 @@
-// import { config } from '@src/config';
-
-// export const MONGO_DATABASE_URL =`mongodb+srv://georgekinoti254:${encodeURIComponent(
-//    ''
-// )}@cluster0.v5pwujv.mongodb.net/?retryWrites=true&w=majority`;
-
+    // "build": "tspc -p .",
 export const BASE_PATH = '/api/v1';
 
 // JOB NAMES
