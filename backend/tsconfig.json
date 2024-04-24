@@ -3,7 +3,7 @@
     "target": "es2015",
     "module": "commonjs",
     "lib": ["DOM", "ES2015"],
-    "baseUrl": "./src",
+    "baseUrl": ".",
     "outDir": "./build",
     "rootDir": ".",
     "strict": true,
@@ -22,7 +22,7 @@
     "paths": {
       "*": ["@types/*"],
       // Add your absolute paths mappings here
-      "@src/*": ["./*"],
+      "@src/*": ["./src/*"],
     },
     "plugins": [
       { "transform": "typescript-transform-paths" },
